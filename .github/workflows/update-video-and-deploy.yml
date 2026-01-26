@@ -28,8 +28,9 @@ jobs:
               echo "Updating $file with video $code"
 
               sed -i \
-                "s|https://www.youtube.com/embed/[^?]*[^\"]*|https://www.youtube.com/embed/$code?autoplay=1&mute=0&rel=0|g" \
+                's|\(https://www.youtube.com/embed/\)[^/?"]*|\1'"$code"'|g' \
                 "$file"
+
             else
               echo "Skipping $file (not found)"
             fi
