@@ -60,5 +60,4 @@ jobs:
             --prod \
             --dir=. \
             --site=$NETLIFY_SITE_ID \
-            --auth=$NETLIFY_AUTH_TOKEN \
-            --yes
+            --auth=$NETLIFY_AUTH_TOKEN
