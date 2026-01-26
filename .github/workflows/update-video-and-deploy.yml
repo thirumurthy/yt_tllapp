@@ -9,6 +9,7 @@ on:
 jobs:
   update-and-deploy:
     runs-on: ubuntu-latest
+    environment: prod
 
     steps:
       - name: Checkout repository
@@ -60,3 +61,4 @@ jobs:
             --dir=. \
             --site=$NETLIFY_SITE_ID \
             --auth=$NETLIFY_AUTH_TOKEN
+            --yes
