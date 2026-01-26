@@ -1,0 +1,58 @@
+name: Update YouTube Embed and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Update HTML files from links.json
+        run: |
+          for key in $(jq -r 'keys[]' links.json); do
+            code=$(jq -r ".\"$key\"" links.json)
+            file="$key.html"
+
+            if [ -f "$file" ]; then
+              echo "Updating $file with video $code"
+
+              sed -i \
+                "s|https://www.youtube.com/embed/[^?]*[^\"]*|https://www.youtube.com/embed/$code?autoplay=1&mute=0&rel=0|g" \
+                "$file"
+            else
+              echo "Skipping $file (not found)"
+            fi
+          done
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add *.html
+            git commit -m "Update YouTube embeds from links.json"
+            git push
+          fi
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          netlify deploy --prod --dir=.
