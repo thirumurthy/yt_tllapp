@@ -36,10 +36,10 @@ jobs:
             html=$(curl -Ls "$live_url")
 
             video_id=$(echo "$html" | \
-              grep -oP '<meta property="og:url" content="https://www.youtube.com/watch\?v=\K[^"]+')
+              grep -oP 'href="https://www.youtube.com/watch\?v=\K[^"]+' | head -n 1 || true)
 
             if [ -z "$video_id" ]; then
-              echo "Could not extract video ID for $channel"
+              echo "No live video found for $channel"
               continue
             fi
 
