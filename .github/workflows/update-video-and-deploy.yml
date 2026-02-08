@@ -51,7 +51,7 @@ jobs:
             echo "Updating $file → $embed_url"
 
             sed -i \
-              's|src="https://www.youtube.com/embed/[^"]*"|src="'"$embed_url"'"|g' \
+              '0,/src="[^"]*"/s|src="[^"]*"|src="'"$embed_url"'"|' \
               "$file"
 
           done
