@@ -66,7 +66,8 @@ jobs:
 
             echo "Updating $file → $embed_url"
 
-            perl -0777 -i -pe 's/src="[^"]*"/src="'"$embed_url"'"/' "$file"
+            EMBED_URL="$embed_url" \
+            perl -0777 -i -pe 's/src="[^"]*"/src="$ENV{EMBED_URL}"/' "$file"
 
           done
 
