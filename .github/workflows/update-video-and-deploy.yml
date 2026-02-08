@@ -1,4 +1,4 @@
-name: Update YouTube Embed and Deploy
+name: Update YouTube Live Embed and Deploy
 
 on:
   push:
@@ -15,25 +15,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq curl
 
-      - name: Update HTML files from links.json
+      - name: Update HTML files from livech.json
         run: |
-          for key in $(jq -r 'keys[]' links.json); do
-            code=$(jq -r ".\"$key\"" links.json)
-            file="$key.html"
+          set -e
 
-            if [ -f "$file" ]; then
-              echo "Updating $file with video $code"
+          for file in $(jq -r 'keys[]' livech.json); do
+            channel=$(jq -r ".\"$file\"" livech.json)
 
-              sed -i \
-                's|\(https://www.youtube.com/embed/\)[^/?"]*|\1'"$code"'|g' \
-                "$file"
-
-            else
+            if [ ! -f "$file" ]; then
               echo "Skipping $file (not found)"
+              continue
             fi
+
+            live_url="https://www.youtube.com/${channel}/live"
+            echo "Fetching live page: $live_url"
+
+            html=$(curl -Ls "$live_url")
+
+            video_id=$(echo "$html" | \
+              grep -oP '<meta property="og:url" content="https://www.youtube.com/watch\?v=\K[^"]+')
+
+            if [ -z "$video_id" ]; then
+              echo "Could not extract video ID for $channel"
+              continue
+            fi
+
+            embed_url="https://www.youtube.com/embed/${video_id}?autoplay=1&mute=0&rel=0"
+
+            echo "Updating $file → $embed_url"
+
+            sed -i \
+              's|<iframe[^>]*src="[^"]*"|<iframe src="'"$embed_url"'"|g' \
+              "$file"
           done
 
       - name: Commit changes
@@ -45,7 +61,7 @@ jobs:
             echo "No changes to commit"
           else
             git add *.html
-            git commit -m "Update YouTube embeds from links.json"
+            git commit -m "Update YouTube live embeds automatically"
             git push
           fi
 
