@@ -51,8 +51,9 @@ jobs:
             echo "Updating $file → $embed_url"
 
             sed -i \
-              's|<iframe[^>]*src="[^"]*"|<iframe src="'"$embed_url"'"|g' \
+              's|src="https://www.youtube.com/embed/[^"]*"|src="'"$embed_url"'"|g' \
               "$file"
+
           done
 
       - name: Commit changes
