@@ -50,9 +50,13 @@ jobs:
 
             echo "Updating $file → $embed_url"
 
-            sed -i \
-              '0,/src="[^"]*"/s|src="[^"]*"|src="'"$embed_url"'"|' \
-              "$file"
+            perl -0777 -i -pe '
+              if (/<iframe[^>]*name="Sun-News-Live"[^>]*>/s) {
+                s{
+                  (<iframe[^>]*name="Sun-News-Live"[^>]*\bsrc=")[^"]*(")
+                }{$1'"$embed_url"'$2}s;
+              }
+            ' "$file"
 
           done
 
