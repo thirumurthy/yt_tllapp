@@ -38,8 +38,24 @@ jobs:
               -H "Accept-Language: en-US,en;q=0.9" \
               "$live_url")
 
+            # 1️⃣ Try shortlinkUrl (best)
             video_id=$(echo "$html" | \
-              grep -oP '"videoId":"\K[^"]+' | head -n 1 || true)
+              grep -oP '<link rel="shortlinkUrl" href="https://youtu.be/\K[^"]+' \
+              || true)
+
+            # 2️⃣ Fallback: og:video:url
+            if [ -z "$video_id" ]; then
+              video_id=$(echo "$html" | \
+                grep -oP '<meta property="og:video:url" content="https://www.youtube.com/embed/\K[^"?]+' \
+                || true)
+            fi
+
+            # 3️⃣ Last fallback: JS videoId (least reliable)
+            if [ -z "$video_id" ]; then
+              video_id=$(echo "$html" | \
+                grep -oP '"videoId":"\K[^"]+' | head -n 1 || true)
+            fi
+
 
             if [ -z "$video_id" ]; then
               echo "Channel is not live or video ID not available: $channel"
