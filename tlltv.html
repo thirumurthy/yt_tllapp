@@ -2,120 +2,173 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
     <meta
       http-equiv="Cache-Control"
       content="no-cache, no-store, must-revalidate"
     />
-    <title id="page-title">Live TV</title>
-
-    <!-- Fonts: Syne (display) + Space Mono (code/clock) + Noto Sans Tamil -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <title>TLL TV · Live</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Noto+Sans+Tamil:wght@400;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
       rel="stylesheet"
     />
-    <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-      :root {
-        --bg: #08090d;
-        --surface: #0f1118;
-        --border: rgba(255, 255, 255, 0.07);
-        --accent: #e8a020;
-        --accent2: #3b7fe8;
-        --live: #e84040;
-        --text: #dde2f0;
-        --muted: #5a627a;
-        --glow: rgba(232, 160, 32, 0.18);
-      }
-
-      * {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
 
+      html,
       body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: "Syne", sans-serif;
-        min-height: 100vh;
-        overflow-x: hidden;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+        font-family: "Space Mono", monospace;
       }
 
-      /* Subtle CRT scanline texture */
-      body::before {
-        content: "";
+      /* ── Full-viewport YouTube player ── */
+      #yt-wrap {
         position: fixed;
         inset: 0;
-        z-index: 999;
+        z-index: 1;
+      }
+      /* Oversized iframe to fill screen in all aspect ratios */
+      #yt-wrap iframe {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100vw;
+        height: calc(100vw * 9 / 16);
+        min-height: 100vh;
+        min-width: calc(100vh * 16 / 9);
+        transform: translate(-50%, -50%);
+        border: none;
         pointer-events: none;
-        background: repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          rgba(0, 0, 0, 0.03) 2px,
-          rgba(0, 0, 0, 0.03) 4px
-        );
       }
 
-      /* ---- Header ---- */
-      #header {
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        background: rgba(8, 9, 13, 0.92);
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid var(--border);
+      /* Tap shield — removed after unmute */
+      #tap-shield {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        cursor: default;
+      }
+
+      /* ══════════════════════════════════════
+       CHANNEL BUG — top left
+    ══════════════════════════════════════ */
+      #channel-bug {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 10;
+        pointer-events: none;
+        user-select: none;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 20px;
-        height: 52px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
       }
 
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-
-      .channel-badge {
+      /* Logo row */
+      .bug-row {
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .channel-badge-name {
-        font-size: 15px;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        color: #fff;
+
+      /* Pulsing live dot */
+      .live-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #e02020;
+        box-shadow: 0 0 0 0 rgba(224, 32, 32, 0.5);
+        animation: pulse 2s ease-in-out infinite;
+        flex-shrink: 0;
       }
-      .channel-badge-name span {
-        color: var(--accent);
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(224, 32, 32, 0.6);
+        }
+        60% {
+          box-shadow: 0 0 0 9px rgba(224, 32, 32, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(224, 32, 32, 0);
+        }
       }
 
-      .live-chip {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        background: var(--live);
-        border-radius: 3px;
-        padding: 2px 7px;
-        font-size: 10px;
+      /* TLL TV logotype */
+      .logo-text {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 32px;
+        letter-spacing: 0.14em;
+        line-height: 1;
+        color: #ffffff;
+        text-shadow:
+          0 0 24px rgba(255, 255, 255, 0.3),
+          0 2px 8px rgba(0, 0, 0, 1);
+      }
+      .logo-text .tv {
+        color: #f0b020;
+      }
+
+      /* Hairline rule */
+      .bug-rule {
+        width: calc(100% + 4px);
+        height: 1.5px;
+        background: linear-gradient(
+          90deg,
+          rgba(240, 176, 32, 0.9) 0%,
+          transparent 80%
+        );
+        margin-left: -2px;
+      }
+
+      /* Clock */
+      #bug-clock {
+        font-family: "Space Mono", monospace;
+        font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.1em;
-        color: #fff;
-        text-transform: uppercase;
-        font-family: "Space Mono", monospace;
+        color: rgba(255, 255, 255, 0.82);
+        text-shadow:
+          0 1px 3px rgba(0, 0, 0, 1),
+          0 0 10px rgba(0, 0, 0, 0.9);
       }
-      .live-dot {
+
+      /* ══════════════════════════════════════
+       LIVE BADGE — top right
+    ══════════════════════════════════════ */
+      #live-badge {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        padding: 4px 10px;
+        backdrop-filter: blur(8px);
+      }
+      .live-blink {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: #fff;
-        animation: blink 1.2s ease-in-out infinite;
+        background: #e02020;
+        animation: blink 1.4s ease-in-out infinite;
       }
       @keyframes blink {
         0%,
@@ -123,523 +176,248 @@
           opacity: 1;
         }
         50% {
-          opacity: 0.3;
+          opacity: 0.2;
         }
       }
-
-      #clock {
-        font-family: "Space Mono", monospace;
-        font-size: 13px;
-        color: var(--accent);
-        letter-spacing: 0.08em;
-        background: rgba(232, 160, 32, 0.08);
-        border: 1px solid rgba(232, 160, 32, 0.2);
-        padding: 4px 10px;
-        border-radius: 4px;
-      }
-
-      /* ---- Layout ---- */
-      .layout {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 16px 16px 24px;
-        display: grid;
-        grid-template-columns: 1fr 300px;
-        gap: 14px;
-      }
-      @media (max-width: 900px) {
-        .layout {
-          grid-template-columns: 1fr;
-        }
-        .sidebar {
-          display: none;
-        }
-        .mobile-sched {
-          display: block !important;
-        }
-      }
-
-      /* ---- Player wrapper ---- */
-      .player-wrap {
-        border-radius: 10px;
-        overflow: hidden;
-        position: relative;
-        background: #000;
-        aspect-ratio: 16/9;
-        box-shadow:
-          0 0 0 1px var(--border),
-          0 20px 60px rgba(0, 0, 0, 0.7);
-      }
-
-      #yt-frame-wrap {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-      }
-      #yt-frame-wrap iframe {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        border: none;
-      }
-
-      /* Mute overlay */
-      #mute-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 30;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(2px);
-        cursor: pointer;
-        transition: opacity 0.4s;
-      }
-      #mute-overlay.hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
-      .mute-btn {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        background: rgba(232, 160, 32, 0.15);
-        border: 1px solid rgba(232, 160, 32, 0.4);
-        border-radius: 12px;
-        padding: 20px 32px;
-        color: var(--accent);
-        transition: all 0.2s;
-      }
-      .mute-btn:hover {
-        background: rgba(232, 160, 32, 0.25);
-        transform: scale(1.04);
-      }
-      .mute-btn .icon {
-        font-size: 42px;
-      }
-      .mute-btn .label {
-        font-size: 13px;
+      .live-text {
+        font-size: 10px;
         font-weight: 700;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.18em;
+        color: #fff;
         text-transform: uppercase;
       }
 
-      /* Loading overlay */
-      #load-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 40;
-        background: var(--bg);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        transition: opacity 0.6s;
-      }
-      #load-overlay.gone {
-        opacity: 0;
-        pointer-events: none;
-      }
-      .loader-ring {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        border: 3px solid rgba(255, 255, 255, 0.07);
-        border-top-color: var(--accent);
-        animation: spin 0.9s linear infinite;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      .loader-text {
-        font-family: "Space Mono", monospace;
-        font-size: 11px;
-        color: var(--muted);
-        letter-spacing: 0.08em;
-      }
-
-      /* Watermark */
-      #watermark {
-        position: absolute;
-        top: 10px;
-        right: 12px;
+      /* ══════════════════════════════════════
+       BOTTOM TITLE STRIP
+    ══════════════════════════════════════ */
+      #prog-strip {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
         z-index: 10;
         pointer-events: none;
-        font-family: "Space Mono", monospace;
-        font-weight: 700;
-        font-size: 12px;
-        letter-spacing: 0.1em;
-        color: rgba(255, 255, 255, 0.7);
-        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+        padding: 50px 24px 18px;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.72) 0%,
+          transparent 100%
+        );
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
         opacity: 0;
-        transition: opacity 1s;
+        transition: opacity 0.7s;
       }
-      #watermark.visible {
+      #prog-strip.on {
         opacity: 1;
       }
 
-      /* Transition overlay */
-      #transition-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 35;
-        background: #000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.4s;
-      }
-      #transition-overlay.show {
-        opacity: 1;
-        pointer-events: all;
-      }
-
-      /* ---- Info Bar ---- */
-      .info-bar {
-        margin-top: 10px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 12px 16px;
-      }
-      .info-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 8px;
-      }
-      .now-badge {
+      .now-pill {
         font-size: 9px;
         font-weight: 700;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        color: var(--live);
-        background: rgba(232, 64, 64, 0.12);
-        border: 1px solid rgba(232, 64, 64, 0.25);
+        color: #e02020;
+        background: rgba(224, 32, 32, 0.14);
+        border: 1px solid rgba(224, 32, 32, 0.35);
         border-radius: 3px;
-        padding: 2px 6px;
-        font-family: "Space Mono", monospace;
-      }
-      #current-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: #fff;
-        flex: 1;
-        margin: 0 10px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .time-badge {
-        font-family: "Space Mono", monospace;
-        font-size: 11px;
-        color: var(--muted);
-        white-space: nowrap;
-      }
-
-      .prog-track {
-        height: 3px;
-        background: rgba(255, 255, 255, 0.07);
-        border-radius: 2px;
-        overflow: hidden;
-      }
-      #prog-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--accent), var(--accent2));
-        border-radius: 2px;
-        transition: width 1s linear;
-        width: 0%;
-      }
-
-      .info-bottom {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 6px;
-      }
-      .info-meta {
-        font-size: 11px;
-        color: var(--muted);
-        font-family: "Space Mono", monospace;
-      }
-
-      /* ---- Sidebar ---- */
-      .sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .panel {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        overflow: hidden;
-      }
-      .panel-head {
-        padding: 10px 14px;
-        border-bottom: 1px solid var(--border);
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--muted);
-        font-family: "Space Mono", monospace;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .panel-head span.material-symbols-outlined {
-        font-size: 15px;
-        color: var(--accent);
-      }
-
-      /* Schedule list */
-      #sched-list {
-        max-height: calc(100vh - 340px);
-        min-height: 200px;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-      }
-
-      .sched-item {
-        padding: 10px 14px;
-        border-left: 2px solid transparent;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        transition: background 0.2s;
-        cursor: default;
-      }
-      .sched-item:last-child {
-        border-bottom: none;
-      }
-      .sched-item.now {
-        border-left-color: var(--accent);
-        background: rgba(232, 160, 32, 0.06);
-      }
-      .sched-item.past {
-        opacity: 0.45;
-      }
-      .sched-item .stime {
-        font-family: "Space Mono", monospace;
-        font-size: 10px;
-        color: var(--muted);
-        white-space: nowrap;
-        padding-top: 1px;
-        min-width: 46px;
-      }
-      .sched-item.now .stime {
-        color: var(--accent);
-      }
-      .sched-item .stitle {
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--text);
-        flex: 1;
-      }
-      .sched-item .sdur {
-        font-size: 10px;
-        color: var(--muted);
-        margin-top: 2px;
-        font-family: "Space Mono", monospace;
-      }
-      .sched-item .snow-tag {
-        font-size: 9px;
-        font-weight: 700;
-        color: var(--accent);
-        background: rgba(232, 160, 32, 0.15);
-        border: 1px solid rgba(232, 160, 32, 0.3);
-        border-radius: 2px;
-        padding: 1px 5px;
-        letter-spacing: 0.08em;
-        font-family: "Space Mono", monospace;
+        padding: 2px 7px;
         white-space: nowrap;
         align-self: center;
       }
-
-      /* Mobile schedule (below player) */
-      .mobile-sched {
-        display: none;
-        margin-top: 10px;
+      #prog-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 22px;
+        letter-spacing: 0.07em;
+        color: #fff;
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
       }
 
-      /* ---- Unmute hint strip (mobile) ---- */
-      #unmute-strip {
-        display: none;
-        background: rgba(232, 160, 32, 0.1);
-        border: 1px solid rgba(232, 160, 32, 0.25);
-        border-radius: 6px;
-        margin-top: 8px;
-        padding: 8px 14px;
-        font-size: 12px;
-        color: var(--accent);
-        text-align: center;
+      /* ══════════════════════════════════════
+       MUTE / CLICK-TO-WATCH OVERLAY
+    ══════════════════════════════════════ */
+      #mute-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.52);
         cursor: pointer;
-        transition: background 0.2s;
+        transition: opacity 0.5s;
       }
-      #unmute-strip:hover {
-        background: rgba(232, 160, 32, 0.2);
-      }
-      #unmute-strip.hidden {
-        display: none !important;
+      #mute-cover.out {
+        opacity: 0;
+        pointer-events: none;
       }
 
-      /* ---- Footer ---- */
-      footer {
-        text-align: center;
-        padding: 20px;
+      .mute-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        background: rgba(10, 10, 14, 0.75);
+        border: 1px solid rgba(240, 176, 32, 0.3);
+        border-radius: 16px;
+        padding: 30px 48px;
+        backdrop-filter: blur(20px);
+        transition:
+          transform 0.2s,
+          background 0.2s;
+      }
+      #mute-cover:hover .mute-card {
+        transform: scale(1.04);
+        background: rgba(10, 10, 14, 0.88);
+      }
+      .mute-icon {
+        font-size: 50px;
+        color: #f0b020;
+      }
+      .mute-hint {
         font-size: 11px;
-        color: var(--muted);
-        border-top: 1px solid var(--border);
-        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      /* ══════════════════════════════════════
+       LOADING SCREEN
+    ══════════════════════════════════════ */
+      #loader {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        transition: opacity 0.8s;
+      }
+      #loader.out {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .load-logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 56px;
+        letter-spacing: 0.16em;
+        color: #fff;
+      }
+      .load-logo span {
+        color: #f0b020;
+      }
+
+      .load-bar-bg {
+        width: 160px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .load-bar {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, #f0b020, #fff8e0);
+        animation: lbar 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      @keyframes lbar {
+        0% {
+          width: 0;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      .load-sub {
+        font-size: 9px;
+        letter-spacing: 0.25em;
+        color: rgba(255, 255, 255, 0.25);
+        text-transform: uppercase;
+      }
+
+      /* ══════════════════════════════════════
+       CHANNEL TRANSITION FLASH
+    ══════════════════════════════════════ */
+      #flash {
+        position: fixed;
+        inset: 0;
+        z-index: 25;
+        background: #000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+      #flash.show {
+        opacity: 1;
       }
     </style>
   </head>
   <body>
-    <!-- ═══════════════════════════════════════ HEADER ═══════════════════════════════════════ -->
-    <div id="header">
-      <div class="header-left">
-        <div class="live-chip"><span class="live-dot"></span> Live</div>
-        <div class="channel-badge">
-          <span class="channel-badge-name" id="ch-name"
-            >My <span>TV</span></span
-          >
-        </div>
+    <!-- ── Video layer ── -->
+    <div id="yt-wrap"><div id="yt-player"></div></div>
+
+    <!-- ── Tap shield ── -->
+    <div id="tap-shield"></div>
+
+    <!-- ── Channel bug: TLL TV logo + clock ── -->
+    <div id="channel-bug">
+      <div class="bug-row">
+        <div class="live-dot"></div>
+        <span class="logo-text">TLL <span class="tv">TV</span></span>
       </div>
-      <div id="clock">00:00:00</div>
+      <div class="bug-rule"></div>
+      <span id="bug-clock">00:00:00</span>
     </div>
 
-    <!-- ═══════════════════════════════════════ MAIN LAYOUT ══════════════════════════════════ -->
-    <div class="layout">
-      <!-- LEFT COLUMN -->
-      <div>
-        <!-- Player -->
-        <div class="player-wrap">
-          <!-- YouTube player target -->
-          <div id="yt-frame-wrap">
-            <div id="yt-player"></div>
-          </div>
+    <!-- ── LIVE badge ── -->
+    <div id="live-badge">
+      <div class="live-blink"></div>
+      <span class="live-text">Live</span>
+    </div>
 
-          <!-- Loading -->
-          <div id="load-overlay">
-            <div class="loader-ring"></div>
-            <p class="loader-text" id="load-text">TUNING IN...</p>
-          </div>
+    <!-- ── Bottom program strip ── -->
+    <div id="prog-strip">
+      <span class="now-pill">Now Playing</span>
+      <span id="prog-title">—</span>
+    </div>
 
-          <!-- Mute click-to-start overlay -->
-          <div id="mute-overlay">
-            <div class="mute-btn">
-              <span class="material-symbols-outlined icon">volume_up</span>
-              <span class="label">Tap to Watch</span>
-            </div>
-          </div>
-
-          <!-- Video transition flash -->
-          <div id="transition-overlay">
-            <div class="loader-ring"></div>
-          </div>
-
-          <!-- Watermark -->
-          <div id="watermark" id="watermark-el"></div>
-        </div>
-
-        <!-- Mobile unmute strip -->
-        <div id="unmute-strip">
-          <span
-            class="material-symbols-outlined"
-            style="font-size: 14px; vertical-align: middle; margin-right: 4px"
-            >volume_off</span
-          >
-          Playing muted — tap here to unmute
-        </div>
-
-        <!-- Info bar -->
-        <div class="info-bar">
-          <div class="info-top">
-            <span class="now-badge">● NOW</span>
-            <span id="current-title">Loading…</span>
-            <span class="time-badge" id="now-time">--:--</span>
-          </div>
-          <div class="prog-track"><div id="prog-fill"></div></div>
-          <div class="info-bottom">
-            <span class="info-meta" id="elapsed-lbl">0:00 elapsed</span>
-            <span class="info-meta" id="next-lbl">Next: —</span>
-          </div>
-        </div>
-
-        <!-- Mobile schedule (visible only on small screens) -->
-        <div class="mobile-sched panel">
-          <div class="panel-head">
-            <span class="material-symbols-outlined">calendar_today</span>
-            Today's Schedule
-          </div>
-          <div id="sched-list-mobile"></div>
-        </div>
-      </div>
-
-      <!-- RIGHT SIDEBAR -->
-      <div class="sidebar">
-        <div class="panel">
-          <div class="panel-head">
-            <span class="material-symbols-outlined">calendar_today</span>
-            Today's Schedule
-          </div>
-          <div id="sched-list"></div>
-        </div>
+    <!-- ── Click-to-watch overlay ── -->
+    <div id="mute-cover">
+      <div class="mute-card">
+        <span class="material-symbols-outlined mute-icon">volume_up</span>
+        <span class="mute-hint">Tap anywhere to watch</span>
       </div>
     </div>
 
-    <footer id="footer-text">© My Live TV · Powered by YouTube</footer>
+    <!-- ── Loading screen ── -->
+    <div id="loader">
+      <div class="load-logo">TLL <span>TV</span></div>
+      <div class="load-bar-bg"><div class="load-bar"></div></div>
+      <div class="load-sub">Tuning in…</div>
+    </div>
 
-    <!-- YouTube IFrame API (loaded AFTER scripts below, so callback is defined first) -->
+    <!-- ── Transition flash ── -->
+    <div id="flash"></div>
+
     <script>
-      // ╔══════════════════════════════════════════════════════════════════════════════╗
-      // ║                    ★  CHANNEL CONFIGURATION  ★                             ║
-      // ║   Edit CONFIG and PLAYLIST to set up your channel.                         ║
-      // ╚══════════════════════════════════════════════════════════════════════════════╝
+      // ╔══════════════════════════════════════════════════════════╗
+      // ║  ★  PLAYLIST CONFIGURATION                             ║
+      // ║                                                        ║
+      // ║  streamingTime : "HH:MM:SS"  — broadcast time (IST)   ║
+      // ║  startTime     : number      — YouTube seek start (s)  ║
+      // ║  endTime       : number      — YouTube seek end (s)    ║
+      // ║  title         : string      — shown at bottom         ║
+      // ║  url           : YouTube URL                           ║
+      // ╚══════════════════════════════════════════════════════════╝
 
-      const CONFIG = {
-        // Your channel name (shown in header and browser tab)
-        channelName: "My Live TV",
-
-        // Accent word in channel name (wrapped in color)
-        channelAccent: "TV",
-
-        // Short watermark text shown on top-right of video
-        watermark: "MY TV",
-
-        // IANA timezone for your broadcast schedule
-        // Examples: "Asia/Kolkata", "America/New_York", "Europe/London", "Asia/Singapore"
-        timezone: "Asia/Kolkata",
-
-        // Start muted? (required for autoplay on most browsers — user clicks to unmute)
-        startMuted: true,
-
-        // Footer text
-        footer: "© My Live TV · Powered by YouTube",
-      };
-
-      // ╔══════════════════════════════════════════════════════════════════════════════╗
-      // ║                       ★  PLAYLIST DATA  ★                                 ║
-      // ║                                                                            ║
-      // ║   Each entry:                                                              ║
-      // ║   streamingTime : "HH:MM:SS"  — when this video airs (in CONFIG.timezone) ║
-      // ║   startTime     : number      — seconds offset in the YouTube video        ║
-      // ║   endTime       : number      — end seconds in the YouTube video           ║
-      // ║   title         : string      — program/show title                         ║
-      // ║   url           : string      — full YouTube watch URL                     ║
-      // ╚══════════════════════════════════════════════════════════════════════════════╝
+      const TIMEZONE = "Asia/Kolkata"; // ← change if needed
 
       const PLAYLIST = [
         {
@@ -791,77 +569,25 @@
         },
       ];
 
-      // ╔══════════════════════════════════════════════════════════════════════════════╗
-      // ║              ENGINE — no need to edit below this line                      ║
-      // ╚══════════════════════════════════════════════════════════════════════════════╝
+      // ── ENGINE ──────────────────────────────────────────────────
 
-      // ── Apply config to DOM ──────────────────────────────────────────────────────
-      (function applyConfig() {
-        document.title = CONFIG.channelName + " · Live";
-        document.getElementById("page-title").textContent =
-          CONFIG.channelName + " · Live";
-        document.getElementById("footer-text").textContent = CONFIG.footer;
-        document.getElementById("watermark").textContent = CONFIG.watermark;
-        // Channel name badge
-        const raw = CONFIG.channelName;
-        const accent = CONFIG.channelAccent;
-        const nameEl = document.getElementById("ch-name");
-        if (accent && raw.includes(accent)) {
-          const idx = raw.lastIndexOf(accent);
-          nameEl.innerHTML =
-            raw.slice(0, idx) +
-            "<span>" +
-            accent +
-            "</span>" +
-            raw.slice(idx + accent.length);
-        } else {
-          nameEl.textContent = raw;
-        }
-      })();
-
-      // Sort playlist by time ascending
       PLAYLIST.sort((a, b) => t2s(a.streamingTime) - t2s(b.streamingTime));
 
-      // ── State ────────────────────────────────────────────────────────────────────
       let ytPlayer = null;
       let playerReady = false;
       let currentIdx = -1;
       let nextTimer = null;
-      let progressTimer = null;
-      let isMuted = CONFIG.startMuted;
-      let pendingLoad = null; // { videoId, startSeconds }
+      let isMuted = true;
+      let pendingLoad = null;
 
-      // ── Utilities ────────────────────────────────────────────────────────────────
-      function t2s(t) {
-        // "HH:MM:SS" → total seconds
-        const p = String(t).split(":").map(Number);
-        if (p.length !== 3) return 0;
-        return p[0] * 3600 + p[1] * 60 + p[2];
+      function t2s(str) {
+        const p = String(str).split(":").map(Number);
+        return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : 0;
       }
 
-      function s2hm(s) {
-        // seconds → "H:MM:SS" or "M:SS"
-        s = Math.max(0, Math.floor(s));
-        const h = Math.floor(s / 3600);
-        const m = Math.floor((s % 3600) / 60);
-        const sec = s % 60;
-        if (h > 0)
-          return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
-        return `${m}:${String(sec).padStart(2, "0")}`;
-      }
-
-      function fmt12(sec) {
-        // seconds-from-midnight → "H:MM AM/PM"
-        sec = ((sec % 86400) + 86400) % 86400;
-        const h = Math.floor(sec / 3600) % 24;
-        const m = Math.floor((sec % 3600) / 60);
-        const ap = h >= 12 ? "PM" : "AM";
-        return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${ap}`;
-      }
-
-      function nowSeconds() {
+      function nowSec() {
         const d = new Date(
-          new Date().toLocaleString("en-US", { timeZone: CONFIG.timezone }),
+          new Date().toLocaleString("en-US", { timeZone: TIMEZONE }),
         );
         return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
       }
@@ -877,185 +603,116 @@
         return null;
       }
 
-      // ── Clock ────────────────────────────────────────────────────────────────────
+      // ── Clock ──
       function tickClock() {
         const d = new Date(
-          new Date().toLocaleString("en-US", { timeZone: CONFIG.timezone }),
+          new Date().toLocaleString("en-US", { timeZone: TIMEZONE }),
         );
-        const hh = String(d.getHours()).padStart(2, "0");
-        const mm = String(d.getMinutes()).padStart(2, "0");
-        const ss = String(d.getSeconds()).padStart(2, "0");
-        document.getElementById("clock").textContent = `${hh}:${mm}:${ss}`;
+        document.getElementById("bug-clock").textContent =
+          String(d.getHours()).padStart(2, "0") +
+          ":" +
+          String(d.getMinutes()).padStart(2, "0") +
+          ":" +
+          String(d.getSeconds()).padStart(2, "0");
       }
       setInterval(tickClock, 1000);
       tickClock();
 
-      // ── Schedule UI ──────────────────────────────────────────────────────────────
-      function buildSchedule() {
-        ["sched-list", "sched-list-mobile"].forEach((id) => {
-          const container = document.getElementById(id);
-          if (!container) return;
-          container.innerHTML = "";
-          PLAYLIST.forEach((p, i) => {
-            const dur = p.endTime - p.startTime;
-            const durMin = Math.round(dur / 60);
-            const el = document.createElement("div");
-            el.className = "sched-item";
-            el.id = `si-${id}-${i}`;
-            el.innerHTML = `
-        <span class="stime">${fmt12(t2s(p.streamingTime))}</span>
-        <span style="flex:1">
-          <div class="stitle">${p.title}</div>
-          <div class="sdur">${durMin} min</div>
-        </span>
-        <span class="snow-tag" id="st-${id}-${i}" style="display:none">NOW</span>
-      `;
-            container.appendChild(el);
-          });
-        });
-      }
+      // ── Loader dismiss after 3 s ──
+      setTimeout(() => {
+        const lo = document.getElementById("loader");
+        lo.classList.add("out");
+        setTimeout(() => (lo.style.display = "none"), 900);
+      }, 3000);
 
-      function highlightSchedule(idx) {
-        const now = nowSeconds();
-        ["sched-list", "sched-list-mobile"].forEach((id) => {
-          PLAYLIST.forEach((p, i) => {
-            const el = document.getElementById(`si-${id}-${i}`);
-            const tag = document.getElementById(`st-${id}-${i}`);
-            if (!el || !tag) return;
-            el.classList.remove("now", "past");
-            tag.style.display = "none";
-            if (i === idx) {
-              el.classList.add("now");
-              tag.style.display = "inline-block";
-              el.scrollIntoView({ behavior: "smooth", block: "nearest" });
-            } else if (t2s(p.streamingTime) < now) {
-              el.classList.add("past");
-            }
-          });
-        });
-      }
-
-      // ── Progress bar ─────────────────────────────────────────────────────────────
-      function startProgress(idx, offset) {
-        clearInterval(progressTimer);
-        const prog = PLAYLIST[idx];
-        const total = prog.endTime - prog.startTime;
-        let elapsed = offset;
-        const nextProg = PLAYLIST[(idx + 1) % PLAYLIST.length];
-
-        const tick = () => {
-          elapsed++;
-          const pct = Math.min((elapsed / total) * 100, 100);
-          document.getElementById("prog-fill").style.width = pct + "%";
-          document.getElementById("elapsed-lbl").textContent =
-            s2hm(elapsed) + " elapsed";
-          document.getElementById("next-lbl").textContent =
-            "Next: " + nextProg.title;
-          document.getElementById("now-time").textContent = fmt12(nowSeconds());
-        };
-        progressTimer = setInterval(tick, 1000);
-        tick();
-      }
-
-      // ── Core play logic ───────────────────────────────────────────────────────────
+      // ── Play logic ──
       function playProgram(idx, offset) {
         if (nextTimer) clearTimeout(nextTimer);
         currentIdx = idx;
 
         const prog = PLAYLIST[idx];
-        const vidId = ytId(prog.url);
-
-        if (!vidId) {
-          console.warn("Bad URL, skipping:", prog.url);
+        const vid = ytId(prog.url);
+        if (!vid) {
           scheduleNext(idx);
           return;
         }
 
         const seekTo = prog.startTime + Math.floor(offset);
 
-        // Update UI
-        document.getElementById("current-title").textContent = prog.title;
-        highlightSchedule(idx);
-        startProgress(idx, offset);
+        document.getElementById("prog-title").textContent = prog.title;
+        document.getElementById("prog-strip").classList.add("on");
 
-        // Show transition flash (not on very first load)
-        if (playerReady && idx !== -1) {
-          const tov = document.getElementById("transition-overlay");
-          tov.classList.add("show");
-          setTimeout(() => tov.classList.remove("show"), 700);
+        // Transition flash (not on very first play)
+        if (playerReady) {
+          const fl = document.getElementById("flash");
+          fl.classList.add("show");
+          setTimeout(() => fl.classList.remove("show"), 380);
         }
 
         if (playerReady) {
-          ytPlayer.loadVideoById({ videoId: vidId, startSeconds: seekTo });
+          ytPlayer.loadVideoById({ videoId: vid, startSeconds: seekTo });
           if (isMuted) ytPlayer.mute();
           else ytPlayer.unMute();
         } else {
-          pendingLoad = { videoId: vidId, startSeconds: seekTo };
+          pendingLoad = { videoId: vid, startSeconds: seekTo };
         }
 
         scheduleNext(idx);
       }
 
       function scheduleNext(idx) {
-        const now = nowSeconds();
+        const now = nowSec();
         const nextIdx = (idx + 1) % PLAYLIST.length;
         const nextAt = t2s(PLAYLIST[nextIdx].streamingTime);
 
-        let delayMs;
+        let ms;
         if (nextAt > now) {
-          delayMs = (nextAt - now) * 1000;
+          ms = (nextAt - now) * 1000;
         } else if (nextIdx === 0) {
-          // Wrap past midnight
-          delayMs = (86400 - now + nextAt) * 1000;
+          ms = (86400 - now + nextAt) * 1000;
         } else {
-          // Fallback: use program's remaining duration
           const p = PLAYLIST[idx];
-          const end = t2s(p.streamingTime) + (p.endTime - p.startTime);
-          delayMs = Math.max(end - now, 5) * 1000;
+          ms =
+            Math.max(t2s(p.streamingTime) + p.endTime - p.startTime - now, 5) *
+            1000;
         }
-
-        nextTimer = setTimeout(() => playProgram(nextIdx, 0), delayMs + 800);
+        nextTimer = setTimeout(() => playProgram(nextIdx, 0), ms + 800);
       }
 
       function findAndPlay() {
-        const now = nowSeconds();
-        // Find last program whose streamingTime <= now
-        let idx = PLAYLIST.length - 1; // default: last (for midnight wrap)
+        const now = nowSec();
+        let idx = PLAYLIST.length - 1;
         for (let i = PLAYLIST.length - 1; i >= 0; i--) {
           if (t2s(PLAYLIST[i].streamingTime) <= now) {
             idx = i;
             break;
           }
         }
-
         const prog = PLAYLIST[idx];
         const starts = t2s(prog.streamingTime);
         const dur = prog.endTime - prog.startTime;
-        let offset = now >= starts ? now - starts : now + 86400 - starts;
+        const offset = now >= starts ? now - starts : now + 86400 - starts;
 
-        if (offset >= dur) {
-          // Already over, play next
-          playProgram((idx + 1) % PLAYLIST.length, 0);
-        } else {
-          playProgram(idx, offset);
-        }
+        if (offset >= dur) playProgram((idx + 1) % PLAYLIST.length, 0);
+        else playProgram(idx, offset);
       }
 
-      // ── YouTube IFrame API ────────────────────────────────────────────────────────
+      // ── YouTube IFrame API ──
       function onYouTubeIframeAPIReady() {
         ytPlayer = new YT.Player("yt-player", {
           width: "100%",
           height: "100%",
           playerVars: {
             autoplay: 1,
-            controls: 1,
+            controls: 0,
             rel: 0,
             showinfo: 0,
             iv_load_policy: 3,
             modestbranding: 1,
-            fs: 1,
+            fs: 0,
             playsinline: 1,
             cc_load_policy: 0,
+            disablekb: 1,
             origin: window.location.origin,
           },
           events: {
@@ -1068,82 +725,59 @@
 
       function onReady(e) {
         playerReady = true;
-
-        // Hide loader
-        const lo = document.getElementById("load-overlay");
-        lo.classList.add("gone");
-        setTimeout(() => (lo.style.display = "none"), 700);
-
-        // Show watermark
-        document.getElementById("watermark").classList.add("visible");
-
+        e.target.mute();
         if (pendingLoad) {
           e.target.loadVideoById(pendingLoad);
-          if (isMuted) e.target.mute();
           pendingLoad = null;
         } else {
           findAndPlay();
-          if (isMuted) e.target.mute();
         }
-
-        // Show unmute overlay if muted
-        if (isMuted) showMuteOverlay();
+        document.getElementById("mute-cover").style.display = "flex";
       }
 
       function onStateChange(e) {
-        if (e.data === YT.PlayerState.ENDED) {
-          const next = (currentIdx + 1) % PLAYLIST.length;
-          playProgram(next, 0);
-        }
+        if (e.data === YT.PlayerState.ENDED)
+          playProgram((currentIdx + 1) % PLAYLIST.length, 0);
       }
 
       function onError(e) {
-        console.warn("YT error code:", e.data);
-        setTimeout(() => {
-          const next = (currentIdx + 1) % PLAYLIST.length;
-          playProgram(next, 0);
-        }, 2500);
+        console.warn("YT error:", e.data);
+        setTimeout(
+          () => playProgram((currentIdx + 1) % PLAYLIST.length, 0),
+          2000,
+        );
       }
 
-      // ── Mute / Unmute ─────────────────────────────────────────────────────────────
-      function showMuteOverlay() {
-        document.getElementById("mute-overlay").classList.remove("hidden");
-        document.getElementById("unmute-strip").style.display = "block";
-      }
-
-      function doUnmute() {
+      // ── Unmute on tap ──
+      function unmute() {
         isMuted = false;
         if (ytPlayer && playerReady) {
           ytPlayer.unMute();
           ytPlayer.setVolume(100);
         }
-        document.getElementById("mute-overlay").classList.add("hidden");
-        document.getElementById("unmute-strip").classList.add("hidden");
+        const cover = document.getElementById("mute-cover");
+        cover.classList.add("out");
+        setTimeout(() => (cover.style.display = "none"), 600);
+        // Allow iframe interaction (volume scrubber etc.)
+        const iframe = document.querySelector("#yt-wrap iframe");
+        if (iframe) iframe.style.pointerEvents = "auto";
+        document.getElementById("tap-shield").style.display = "none";
       }
 
-      document
-        .getElementById("mute-overlay")
-        .addEventListener("click", doUnmute);
-      document
-        .getElementById("unmute-strip")
-        .addEventListener("click", doUnmute);
+      document.getElementById("mute-cover").addEventListener("click", unmute);
+      document.getElementById("tap-shield").addEventListener("click", unmute);
 
-      // ── Init ──────────────────────────────────────────────────────────────────────
-      buildSchedule();
-
-      // Pre-fill UI before player loads
-      const preIdx = (() => {
-        const now = nowSeconds();
+      // Pre-fill title before player loads
+      const pre = (() => {
+        const now = nowSec();
         let i = PLAYLIST.length - 1;
         for (; i >= 0; i--) if (t2s(PLAYLIST[i].streamingTime) <= now) break;
         return Math.max(i, 0);
       })();
-      document.getElementById("current-title").textContent =
-        PLAYLIST[preIdx].title;
-      highlightSchedule(preIdx);
+      document.getElementById("prog-title").textContent = PLAYLIST[pre].title;
     </script>
 
-    <!-- Load YouTube API AFTER our script so onYouTubeIframeAPIReady is defined -->
+    <!-- YouTube API loaded LAST so onYouTubeIframeAPIReady is already defined -->
     <script src="https://www.youtube.com/iframe_api"></script>
   </body>
 </html>
