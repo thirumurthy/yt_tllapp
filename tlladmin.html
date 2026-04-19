@@ -3,460 +3,1242 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TLL TV · Admin Panel</title>
+    <title>TLL TV · Schedule Manager</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-      * {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
+
+      :root {
+        --bg: #08090d;
+        --surf: #0e0f16;
+        --surf2: #13151e;
+        --border: rgba(255, 255, 255, 0.07);
+        --gold: #f0b020;
+        --red: #e02020;
+        --green: #3dba6f;
+        --text: #d8dff0;
+        --muted: #5a627a;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
       body {
         font-family: "Space Mono", monospace;
-        background: #0a0a0f;
-        color: #fff;
+        background: var(--bg);
+        color: var(--text);
         min-height: 100vh;
-        padding: 20px;
+        padding-bottom: 60px;
       }
-      .header {
+
+      /* ── Header ── */
+      .hdr {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(8, 9, 13, 0.97);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(240, 176, 32, 0.15);
+        height: 56px;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 20px 0;
-        border-bottom: 1px solid rgba(240, 176, 32, 0.3);
-        margin-bottom: 30px;
+        justify-content: space-between;
+        padding: 0 24px;
       }
-      .logo {
-        font-family: "Bebas Neue", sans-serif;
-        font-size: 32px;
-        letter-spacing: 0.14em;
-      }
-      .logo span {
-        color: #f0b020;
-      }
-      .container {
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-      .card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(240, 176, 32, 0.2);
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 20px;
-      }
-      .card h2 {
+      .hdr-logo {
         font-family: "Bebas Neue", sans-serif;
         font-size: 24px;
-        letter-spacing: 0.1em;
-        color: #f0b020;
+        letter-spacing: 0.16em;
+        color: #fff;
+      }
+      .hdr-logo span {
+        color: var(--gold);
+      }
+      .hdr-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* ── Buttons ── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 18px;
+        border: none;
+        border-radius: 6px;
+        font-family: "Space Mono", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .btn-gold {
+        background: var(--gold);
+        color: #08090d;
+      }
+      .btn-gold:hover {
+        background: #ffc845;
+      }
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.07);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.13);
+      }
+      .btn-red {
+        background: rgba(224, 32, 32, 0.15);
+        color: #e85555;
+        border: 1px solid rgba(224, 32, 32, 0.25);
+      }
+      .btn-red:hover {
+        background: rgba(224, 32, 32, 0.28);
+      }
+      .btn-green {
+        background: rgba(61, 186, 111, 0.15);
+        color: var(--green);
+        border: 1px solid rgba(61, 186, 111, 0.25);
+      }
+      .btn-green:hover {
+        background: rgba(61, 186, 111, 0.28);
+      }
+      .btn-sm {
+        padding: 5px 12px;
+        font-size: 10px;
+      }
+      .btn-xs {
+        padding: 3px 9px;
+        font-size: 9px;
+        letter-spacing: 0.06em;
+      }
+
+      /* ── Layout ── */
+      .wrap {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 24px 20px;
+      }
+
+      /* ── Cards ── */
+      .card {
+        background: var(--surf);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+      .card-hd {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 18px;
+        letter-spacing: 0.12em;
+        color: var(--gold);
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card-hd::before {
+        content: "";
+        width: 3px;
+        height: 16px;
+        background: var(--gold);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+
+      /* ── Stats ── */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
         margin-bottom: 20px;
       }
+      .stat {
+        background: var(--surf2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px 18px;
+      }
+      .stat-val {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 30px;
+        color: var(--gold);
+        letter-spacing: 0.06em;
+      }
+      .stat-lbl {
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      /* ── Form ── */
       .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+        gap: 13px;
       }
-      .form-group {
+      .fg {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
       }
-      .form-group label {
-        font-size: 10px;
-        letter-spacing: 0.15em;
+      .fg label {
+        font-size: 9px;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--muted);
       }
-      .form-group input {
+      .fg input,
+      .fg select {
         background: rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.09);
         border-radius: 6px;
-        padding: 10px 12px;
+        padding: 10px 13px;
         color: #fff;
         font-family: "Space Mono", monospace;
         font-size: 13px;
+        transition: border-color 0.2s;
       }
-      .form-group input:focus {
+      .fg input:focus,
+      .fg select:focus {
         outline: none;
-        border-color: #f0b020;
+        border-color: rgba(240, 176, 32, 0.5);
+        background: rgba(0, 0, 0, 0.55);
       }
-      .btn {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-family: "Space Mono", monospace;
-        font-size: 12px;
+      .fg input::placeholder {
+        color: rgba(255, 255, 255, 0.18);
+      }
+      .fg select option {
+        background: #1a1b26;
+      }
+      .full {
+        grid-column: 1/-1;
+      }
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+
+      /* ── Tabs ── */
+      .tabs {
+        display: flex;
+        gap: 2px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 7px;
+        padding: 3px;
+        margin-bottom: 18px;
+        width: fit-content;
+      }
+      .tab {
+        padding: 7px 18px;
+        border-radius: 5px;
+        font-size: 10px;
         font-weight: 700;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         cursor: pointer;
+        color: var(--muted);
         transition: all 0.2s;
+        border: none;
+        background: none;
+        font-family: "Space Mono", monospace;
       }
-      .btn-primary {
-        background: #f0b020;
-        color: #0a0a0f;
+      .tab.active {
+        background: rgba(240, 176, 32, 0.18);
+        color: var(--gold);
       }
-      .btn-primary:hover {
-        background: #ffc040;
-      }
-      .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
-      }
-      .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-      .btn-danger {
-        background: rgba(224, 32, 32, 0.2);
-        color: #e02020;
-        border: 1px solid rgba(224, 32, 32, 0.3);
-      }
-      .btn-danger:hover {
-        background: rgba(224, 32, 32, 0.4);
-      }
-      .actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-        flex-wrap: wrap;
-      }
-      .schedule-list {
+
+      /* ── Schedule list ── */
+      .sched-list {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        margin-top: 15px;
+        gap: 7px;
       }
-      .schedule-item {
+
+      .sched-row {
         display: flex;
         align-items: center;
-        gap: 15px;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        gap: 12px;
+        background: var(--surf2);
+        border: 1px solid var(--border);
+        border-left: 3px solid transparent;
         border-radius: 8px;
-        padding: 15px;
-        transition: border-color 0.2s;
+        padding: 13px 16px;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
       }
-      .schedule-item:hover {
-        border-color: rgba(240, 176, 32, 0.3);
+      .sched-row:hover {
+        background: rgba(255, 255, 255, 0.03);
+        border-left-color: rgba(240, 176, 32, 0.35);
       }
-      .schedule-item.inactive {
-        opacity: 0.5;
+      .sched-row.override {
+        border-left-color: var(--gold);
       }
-      .schedule-time {
-        font-size: 14px;
+      .sched-row.played {
+        opacity: 0.4;
+      }
+      .sched-row.default {
+        border-left-color: rgba(255, 255, 255, 0.1);
+      }
+      .sched-row.now {
+        border-left-color: var(--red);
+        background: rgba(224, 32, 32, 0.05);
+      }
+
+      .sr-time {
+        font-size: 12px;
         font-weight: 700;
-        color: #f0b020;
-        min-width: 70px;
+        color: var(--gold);
+        min-width: 68px;
+        white-space: nowrap;
       }
-      .schedule-info {
+      .sr-time.default {
+        color: var(--muted);
+      }
+      .sr-info {
         flex: 1;
+        min-width: 0;
       }
-      .schedule-title {
-        font-size: 14px;
+      .sr-title {
+        font-size: 12px;
         font-weight: 700;
-        margin-bottom: 4px;
-      }
-      .schedule-url {
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.5);
+        color: #fff;
+        margin-bottom: 3px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        max-width: 400px;
       }
-      .schedule-duration {
+      .sr-url {
         font-size: 10px;
-        color: rgba(255, 255, 255, 0.4);
-        min-width: 80px;
+        color: var(--muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sr-dur {
+        font-size: 10px;
+        color: var(--muted);
+        min-width: 62px;
         text-align: right;
+        white-space: nowrap;
       }
-      .schedule-actions {
+      .sr-btns {
         display: flex;
-        gap: 8px;
+        gap: 6px;
+        flex-shrink: 0;
       }
-      .btn-sm {
-        padding: 6px 12px;
-        font-size: 10px;
+
+      /* Tags */
+      .tag {
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 2px 6px;
+        border-radius: 3px;
+        border: 1px solid;
+        white-space: nowrap;
       }
-      .message {
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 20px;
+      .tag-live {
+        color: var(--red);
+        background: rgba(224, 32, 32, 0.12);
+        border-color: rgba(224, 32, 32, 0.3);
+      }
+      .tag-over {
+        color: var(--gold);
+        background: rgba(240, 176, 32, 0.1);
+        border-color: rgba(240, 176, 32, 0.3);
+      }
+      .tag-def {
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .tag-played {
+        color: var(--muted);
+        background: transparent;
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+      .tag-on {
+        color: var(--green);
+        background: rgba(61, 186, 111, 0.1);
+        border-color: rgba(61, 186, 111, 0.25);
+      }
+      .tag-off {
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      /* ── Alert / Toast ── */
+      .alert {
+        padding: 11px 16px;
+        border-radius: 7px;
         font-size: 12px;
+        margin-bottom: 16px;
+        display: none;
       }
-      .message.success {
-        background: rgba(34, 197, 94, 0.2);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        color: #22c55e;
+      .alert-ok {
+        background: rgba(61, 186, 111, 0.1);
+        border: 1px solid rgba(61, 186, 111, 0.25);
+        color: var(--green);
       }
-      .message.error {
-        background: rgba(224, 32, 32, 0.2);
-        border: 1px solid rgba(224, 32, 32, 0.3);
-        color: #e02020;
+      .alert-err {
+        background: rgba(224, 32, 32, 0.1);
+        border: 1px solid rgba(224, 32, 32, 0.25);
+        color: #e85555;
       }
-      .toast {
+
+      #toast {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: rgba(10, 10, 15, 0.95);
-        border: 1px solid #f0b020;
+        bottom: 22px;
+        right: 22px;
+        z-index: 100;
+        background: rgba(8, 9, 13, 0.97);
+        border: 1px solid var(--gold);
         border-radius: 8px;
-        padding: 12px 20px;
+        padding: 11px 20px;
         font-size: 12px;
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(14px);
         transition: all 0.3s;
-        z-index: 100;
+        pointer-events: none;
       }
-      .toast.show {
+      #toast.show {
         opacity: 1;
         transform: translateY(0);
       }
+
+      /* ── Today's timeline ── */
+      .timeline-wrap {
+        position: relative;
+      }
+      .tl-now-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--red);
+        z-index: 5;
+        pointer-events: none;
+        transition: top 0.5s;
+      }
+      .tl-now-line::before {
+        content: "NOW";
+        position: absolute;
+        left: 0;
+        top: -8px;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--red);
+        background: var(--bg);
+        padding: 0 4px;
+      }
+
+      /* ── SQL hint ── */
+      .sql-block {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 7px;
+        padding: 14px;
+        font-size: 11px;
+        color: var(--muted);
+        white-space: pre;
+        overflow-x: auto;
+        line-height: 1.7;
+        margin-top: 10px;
+      }
+
+      /* Empty */
       .empty {
         text-align: center;
-        padding: 40px;
-        color: rgba(255, 255, 255, 0.4);
+        padding: 40px 20px;
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 640px) {
+        .sched-row {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .sr-btns {
+          width: 100%;
+          justify-content: flex-end;
+        }
+        .sr-dur {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <div class="logo">TLL <span>TV</span> · Admin</div>
-        <a href="index.html" class="btn btn-secondary btn-sm">View Player</a>
+    <!-- Header -->
+    <div class="hdr">
+      <div class="hdr-logo">TLL <span>TV</span> · Schedule</div>
+      <div class="hdr-right">
+        <a href="tlltv.html" class="btn btn-ghost btn-sm">▶ Watch Live</a>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <!-- Alert -->
+      <div id="alert" class="alert"></div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-val" id="s-upcoming">—</div>
+          <div class="stat-lbl">Upcoming</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="s-today">—</div>
+          <div class="stat-lbl">Today</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="s-played">—</div>
+          <div class="stat-lbl">Played</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="s-clock">--:--:--</div>
+          <div class="stat-lbl">IST Now</div>
+        </div>
       </div>
 
-      <div id="message" class="message" style="display: none"></div>
-
-      <div class="card">
-        <h2>Add / Edit Schedule</h2>
-        <form id="schedule-form">
-          <input type="hidden" id="edit-id" value="" />
+      <!-- Add / Edit form -->
+      <div class="card" id="form-card">
+        <div class="card-hd" id="form-hd">Schedule a Video</div>
+        <form id="main-form" autocomplete="off">
+          <input type="hidden" id="f-id" />
           <div class="form-grid">
-            <div class="form-group">
-              <label>Start Time (HH:MM:SS)</label>
+            <div class="fg">
+              <label>Date</label>
+              <input type="date" id="f-date" required />
+            </div>
+
+            <div class="fg">
+              <label>Air Time (HH:MM:SS)</label>
               <input
                 type="text"
-                id="streaming_time"
-                placeholder="09:00:00"
+                id="f-time"
+                placeholder="09:30:00"
+                pattern="\d{2}:\d{2}:\d{2}"
                 required
               />
             </div>
-            <div class="form-group">
+
+            <div class="fg">
               <label>Title</label>
               <input
                 type="text"
-                id="title"
+                id="f-title"
                 placeholder="Program Title"
                 required
               />
             </div>
-            <div class="form-group">
+
+            <div class="fg">
+              <label>Start Offset (sec)</label>
+              <input type="number" id="f-start" value="0" min="0" />
+            </div>
+
+            <div class="fg">
+              <label>Duration (sec)</label>
+              <input type="number" id="f-end" value="3600" min="1" required />
+            </div>
+
+            <div class="fg full">
               <label>YouTube URL</label>
               <input
                 type="url"
-                id="youtube_url"
-                placeholder="https://youtube.com/watch?v=..."
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>Start Offset (sec)</label>
-              <input type="number" id="start_time" value="0" min="0" />
-            </div>
-            <div class="form-group">
-              <label>Duration (sec)</label>
-              <input
-                type="number"
-                id="end_time"
-                value="3600"
-                min="1"
+                id="f-url"
+                placeholder="https://www.youtube.com/watch?v=…"
                 required
               />
             </div>
           </div>
-          <div class="actions">
-            <button type="submit" class="btn btn-primary">Save Schedule</button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              onclick="resetForm()"
-            >
-              Clear / Cancel
+          <div class="form-actions">
+            <button type="submit" class="btn btn-gold" id="f-submit">
+              ＋ Add to Schedule
+            </button>
+            <button type="button" class="btn btn-ghost" onclick="resetForm()">
+              ✕ Cancel
             </button>
           </div>
         </form>
       </div>
 
+      <!-- Today's full schedule -->
       <div class="card">
-        <h2>Schedule List</h2>
-        <div id="schedule-list" class="schedule-list"></div>
+        <div class="card-hd">Today's Broadcast</div>
+        <div class="timeline-wrap">
+          <div id="tl-now-line" class="tl-now-line" style="display: none"></div>
+          <div id="today-list" class="sched-list"></div>
+        </div>
+      </div>
+
+      <!-- Upcoming / History tabs -->
+      <div class="card">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('upcoming', this)">
+            Upcoming
+          </button>
+          <button class="tab" onclick="switchTab('history', this)">
+            History
+          </button>
+          <button class="tab" onclick="switchTab('setup', this)">Setup</button>
+        </div>
+
+        <div id="tab-upcoming">
+          <div id="upcoming-list" class="sched-list"></div>
+        </div>
+
+        <div id="tab-history" style="display: none">
+          <div id="history-list" class="sched-list"></div>
+        </div>
+
+        <div id="tab-setup" style="display: none">
+          <p
+            style="
+              font-size: 12px;
+              color: var(--muted);
+              line-height: 1.9;
+              margin-bottom: 12px;
+            "
+          >
+            Run this SQL in your Supabase dashboard → SQL Editor to create the
+            required table:
+          </p>
+          <pre class="sql-block">
+CREATE TABLE IF NOT EXISTS tll_schedules (
+  id             uuid        DEFAULT gen_random_uuid() PRIMARY KEY,
+  title          text        NOT NULL,
+  youtube_url    text        NOT NULL,
+  start_time     integer     DEFAULT 0,
+  end_time       integer     NOT NULL,
+  scheduled_date date        NOT NULL,          -- e.g. 2025-04-20
+  streaming_time text        NOT NULL,          -- e.g. 09:30:00
+  is_played      boolean     DEFAULT false,
+  played_at      timestamptz,
+  is_active      boolean     DEFAULT true,
+  created_at     timestamptz DEFAULT now()
+);
+
+-- Allow anonymous read/write (disable RLS or add policies)
+ALTER TABLE tll_schedules ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "public read"  ON tll_schedules FOR SELECT USING (true);
+CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK (true);
+        </pre
+          >
+          <p
+            style="
+              font-size: 11px;
+              color: var(--muted);
+              margin-top: 14px;
+              line-height: 1.8;
+            "
+          >
+            After creating the table, refresh this page. The player at
+            <b>tlltv.html</b>
+            will automatically pull today's overrides and fall back to the
+            default schedule for any unscheduled time slots.
+          </p>
+        </div>
       </div>
     </div>
+    <!-- /wrap -->
 
-    <div id="toast" class="toast"></div>
+    <div id="toast"></div>
 
     <script>
+      // ══════════════════════════════════════════════════════════════════════
+      //  CONFIG — same keys as player
+      // ══════════════════════════════════════════════════════════════════════
       const SUPABASE_URL = "https://wadxjpvokisrgyqkqnrc.supabase.co";
       const SUPABASE_KEY = "sb_publishable_e4SNfQTuep0XcqCfHqSyHg_jB1AZn72";
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const TIMEZONE = "Asia/Kolkata";
+      const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      function showToast(msg) {
-        const toast = document.getElementById("toast");
-        toast.textContent = msg;
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 3000);
+      // ── Default schedule (read-only reference) ───────────────────────────
+      const DEFAULT_SCHEDULE = [
+        {
+          streamingTime: "00:00:00",
+          startTime: 0,
+          endTime: 7200,
+          title: "Old Songs",
+          url: "https://www.youtube.com/watch?v=vWth2K7FQHo",
+        },
+        {
+          streamingTime: "02:00:00",
+          startTime: 0,
+          endTime: 7200,
+          title: "Old Songs",
+          url: "https://www.youtube.com/watch?v=vWth2K7FQHo",
+        },
+        {
+          streamingTime: "04:00:00",
+          startTime: 0,
+          endTime: 9000,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=pMN7Q61kVG4",
+        },
+        {
+          streamingTime: "06:30:00",
+          startTime: 0,
+          endTime: 1800,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=exK_f4zBmqU",
+        },
+        {
+          streamingTime: "07:00:00",
+          startTime: 0,
+          endTime: 540,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=5dREnL37C5E",
+        },
+        {
+          streamingTime: "07:09:00",
+          startTime: 0,
+          endTime: 1560,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=exK_f4zBmqU",
+        },
+        {
+          streamingTime: "07:35:00",
+          startTime: 0,
+          endTime: 1500,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=spC4aTRQbgw",
+        },
+        {
+          streamingTime: "08:00:00",
+          startTime: 0,
+          endTime: 2640,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=rk9RU3LHH4w",
+        },
+        {
+          streamingTime: "08:44:00",
+          startTime: 0,
+          endTime: 1800,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=73F_1S7_mws",
+        },
+        {
+          streamingTime: "09:14:00",
+          startTime: 30,
+          endTime: 726,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=79imcKgFO3g",
+        },
+        {
+          streamingTime: "09:25:36",
+          startTime: 0,
+          endTime: 264,
+          title: "Vijay Ad",
+          url: "https://www.youtube.com/watch?v=UVgMRd76Bbo",
+        },
+        {
+          streamingTime: "09:30:00",
+          startTime: 0,
+          endTime: 9000,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=shBuqr4acOw",
+        },
+        {
+          streamingTime: "12:00:00",
+          startTime: 0,
+          endTime: 1800,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=puqu4KUQqPw",
+        },
+        {
+          streamingTime: "12:30:00",
+          startTime: 0,
+          endTime: 1800,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=sSjnGLEGi8M",
+        },
+        {
+          streamingTime: "13:00:00",
+          startTime: 0,
+          endTime: 7200,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=HB5ChkRD8eU",
+        },
+        {
+          streamingTime: "15:00:00",
+          startTime: 0,
+          endTime: 2040,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=xd5927hV9Ho",
+        },
+        {
+          streamingTime: "15:34:00",
+          startTime: 0,
+          endTime: 1560,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=BzCzO3Hwa9M",
+        },
+        {
+          streamingTime: "16:00:00",
+          startTime: 0,
+          endTime: 1020,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=NL_dIADgDZY",
+        },
+        {
+          streamingTime: "16:30:00",
+          startTime: 0,
+          endTime: 9000,
+          title: "Movi - Vijay",
+          url: "https://www.youtube.com/watch?v=_Or-2oummqI",
+        },
+        {
+          streamingTime: "19:00:00",
+          startTime: 0,
+          endTime: 9000,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=pMN7Q61kVG4",
+        },
+        {
+          streamingTime: "21:30:00",
+          startTime: 0,
+          endTime: 9000,
+          title: "Eng 19",
+          url: "https://www.youtube.com/watch?v=kT6BJcF3ajM",
+        },
+      ];
+
+      // ── Helpers ───────────────────────────────────────────────────────────
+      function t2s(str) {
+        const p = String(str).split(":").map(Number);
+        return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : 0;
+      }
+      function nowIST() {
+        return new Date(
+          new Date().toLocaleString("en-US", { timeZone: TIMEZONE }),
+        );
+      }
+      function nowSec() {
+        const d = nowIST();
+        return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+      }
+      function todayStr() {
+        const d = nowIST();
+        return (
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0")
+        );
+      }
+      function fmtDur(sec) {
+        const h = Math.floor(sec / 3600),
+          m = Math.floor((sec % 3600) / 60),
+          s = sec % 60;
+        if (h) return `${h}h ${m}m`;
+        if (m) return `${m}m ${s}s`;
+        return `${s}s`;
+      }
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
       }
 
-      function showMessage(msg, type = "success") {
-        const el = document.getElementById("message");
+      // ── Toast / Alert ─────────────────────────────────────────────────────
+      function toast(msg) {
+        const el = document.getElementById("toast");
         el.textContent = msg;
-        el.className = `message ${type}`;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 3000);
+      }
+      function showAlert(msg, type = "ok") {
+        const el = document.getElementById("alert");
+        el.textContent = msg;
+        el.className = "alert alert-" + type;
         el.style.display = "block";
-        setTimeout(() => (el.style.display = "none"), 4000);
+        setTimeout(() => (el.style.display = "none"), 5000);
       }
 
-      async function fetchSchedules() {
-        const { data, error } = await supabase
-          .from("schedules")
-          .select("*")
-          .order("streaming_time");
+      // ── Clock ─────────────────────────────────────────────────────────────
+      (function tick() {
+        const d = nowIST();
+        document.getElementById("s-clock").textContent =
+          String(d.getHours()).padStart(2, "0") +
+          ":" +
+          String(d.getMinutes()).padStart(2, "0") +
+          ":" +
+          String(d.getSeconds()).padStart(2, "0");
+        setTimeout(tick, 1000);
+      })();
 
+      // ── Supabase: fetch all overrides ─────────────────────────────────────
+      async function fetchAll() {
+        const { data, error } = await db
+          .from("tll_schedules")
+          .select("*")
+          .order("scheduled_date")
+          .order("streaming_time");
         if (error) {
-          showMessage("Error loading schedules: " + error.message, "error");
+          if (error.code === "42P01") {
+            // Table doesn't exist yet — switch to setup tab
+            switchTab("setup", document.querySelector(".tab:last-child"));
+            showAlert(
+              "Table 'tll_schedules' not found. See Setup tab to create it.",
+              "err",
+            );
+          } else {
+            showAlert("DB error: " + error.message, "err");
+          }
           return [];
         }
         return data || [];
       }
 
-      async function saveSchedule(schedule) {
-        if (schedule.id) {
-          const { error } = await supabase
-            .from("schedules")
-            .update({ ...schedule, updated_at: new Date().toISOString() })
-            .eq("id", schedule.id);
-          if (error) throw error;
-          showToast("Schedule updated");
-        } else {
-          const { error } = await supabase
-            .from("schedules")
-            .insert([{ ...schedule }]);
-          if (error) throw error;
-          showToast("Schedule added");
-        }
-      }
+      // ── Render today's merged schedule ────────────────────────────────────
+      function renderToday(allRows) {
+        const today = todayStr();
+        const now = nowSec();
+        const todayOvr = allRows.filter(
+          (r) => r.scheduled_date === today && r.is_active,
+        );
+        const ovrTimes = new Set(todayOvr.map((r) => r.streaming_time));
 
-      async function deleteSchedule(id) {
-        if (!confirm("Delete this schedule?")) return;
-        const { error } = await supabase
-          .from("schedules")
-          .delete()
-          .eq("id", id);
-        if (error) {
-          showMessage("Error deleting: " + error.message, "error");
-        } else {
-          showToast("Schedule deleted");
-          renderSchedules();
-        }
-      }
+        // Merge: default (not replaced) + overrides
+        const defaults = DEFAULT_SCHEDULE.filter(
+          (d) => !ovrTimes.has(d.streamingTime),
+        ).map((d) => ({ ...d, _type: "default" }));
+        const overrides = todayOvr.map((r) => ({
+          streamingTime: r.streaming_time,
+          startTime: r.start_time || 0,
+          endTime: r.end_time,
+          title: r.title,
+          url: r.youtube_url,
+          _type: r.is_played ? "played" : "override",
+          _id: r.id,
+        }));
 
-      async function toggleActive(id, currentState) {
-        const { error } = await supabase
-          .from("schedules")
-          .update({
-            is_active: !currentState,
-            updated_at: new Date().toISOString(),
+        const merged = [...defaults, ...overrides].sort(
+          (a, b) => t2s(a.streamingTime) - t2s(b.streamingTime),
+        );
+
+        // Identify current
+        let curIdx = merged.length - 1;
+        for (let i = merged.length - 1; i >= 0; i--) {
+          if (t2s(merged[i].streamingTime) <= now) {
+            curIdx = i;
+            break;
+          }
+        }
+
+        const list = document.getElementById("today-list");
+        list.innerHTML = merged
+          .map((p, i) => {
+            const isNow = i === curIdx;
+            const isPast = t2s(p.streamingTime) < now && !isNow;
+            let cls = "sched-row";
+            if (p._type === "override") cls += " override";
+            if (p._type === "played") cls += " played";
+            if (p._type === "default") cls += " default";
+            if (isNow) cls += " now";
+
+            const tag = isNow
+              ? `<span class="tag tag-live">ON AIR</span>`
+              : p._type === "override"
+                ? `<span class="tag tag-over">Override</span>`
+                : p._type === "played"
+                  ? `<span class="tag tag-played">Played</span>`
+                  : `<span class="tag tag-def">Default</span>`;
+
+            const dur = p.endTime - p.startTime;
+            const editBtn =
+              p._type === "override" && !isPast
+                ? `<button class="btn btn-ghost btn-xs" onclick='editRow(${JSON.stringify({ id: p._id, title: p.title, youtube_url: p.url, start_time: p.startTime, end_time: p.endTime, scheduled_date: today, streaming_time: p.streamingTime })})'>Edit</button>
+           <button class="btn btn-red btn-xs" onclick="delRow('${p._id}')">✕</button>`
+                : "";
+
+            return `<div class="${cls}" id="tdr-${i}">
+        <div class="sr-time ${p._type === "default" ? "default" : ""}">${p.streamingTime}</div>
+        <div class="sr-info">
+          <div class="sr-title">${esc(p.title)}</div>
+          <div class="sr-url">${esc(p.url)}</div>
+        </div>
+        ${tag}
+        <div class="sr-dur">${fmtDur(dur)}</div>
+        <div class="sr-btns">${editBtn}</div>
+      </div>`;
           })
-          .eq("id", id);
-        if (!error) renderSchedules();
+          .join("");
+
+        // Position NOW line
+        if (merged.length) {
+          const rowEls = list.querySelectorAll(".sched-row");
+          const curEl = rowEls[curIdx];
+          if (curEl) {
+            const nl = document.getElementById("tl-now-line");
+            nl.style.display = "block";
+            // Position after top of current row + fractional progress
+            const prog = PLAYLIST_PROGRESS(merged[curIdx], now);
+            nl.style.top = curEl.offsetTop + curEl.offsetHeight * prog + "px";
+          }
+        }
       }
 
-      function editSchedule(item) {
-        document.getElementById("edit-id").value = item.id;
-        document.getElementById("streaming_time").value = item.streaming_time;
-        document.getElementById("title").value = item.title;
-        document.getElementById("youtube_url").value = item.youtube_url;
-        document.getElementById("start_time").value = item.start_time;
-        document.getElementById("end_time").value = item.end_time;
-        document.getElementById("streaming_time").focus();
+      function PLAYLIST_PROGRESS(prog, now) {
+        const start = t2s(prog.streamingTime);
+        const dur = prog.endTime - prog.startTime;
+        const el = now >= start ? now - start : 0;
+        return Math.min(el / dur, 1);
       }
 
-      function resetForm() {
-        document.getElementById("schedule-form").reset();
-        document.getElementById("edit-id").value = "";
-        document.getElementById("start_time").value = "0";
-        document.getElementById("end_time").value = "3600";
-      }
+      // ── Render upcoming overrides ─────────────────────────────────────────
+      function renderUpcoming(allRows) {
+        const today = todayStr();
+        const now = nowSec();
+        const rows = allRows.filter(
+          (r) =>
+            r.is_active &&
+            !r.is_played &&
+            (r.scheduled_date > today ||
+              (r.scheduled_date === today && t2s(r.streaming_time) > now)),
+        );
 
-      function formatDuration(sec) {
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = sec % 60;
-        return `${h}h ${m}m ${s}s`;
-      }
+        document.getElementById("s-upcoming").textContent = rows.length;
 
-      function renderSchedules(items) {
-        const list = document.getElementById("schedule-list");
-        if (!items || items.length === 0) {
+        const list = document.getElementById("upcoming-list");
+        if (!rows.length) {
           list.innerHTML =
-            '<div class="empty">No schedules yet. Add one above.</div>';
+            '<div class="empty">No upcoming overrides scheduled</div>';
           return;
         }
-        list.innerHTML = items
+        list.innerHTML = rows
           .map(
-            (item) => `
-        <div class="schedule-item ${item.is_active ? "" : "inactive"}">
-          <div class="schedule-time">${item.streaming_time}</div>
-          <div class="schedule-info">
-            <div class="schedule-title">${item.title}</div>
-            <div class="schedule-url">${item.youtube_url}</div>
-          </div>
-          <div class="schedule-duration">${formatDuration(item.end_time - item.start_time)}</div>
-          <div class="schedule-actions">
-            <button class="btn btn-secondary btn-sm" onclick='editSchedule(${JSON.stringify(item)})'>Edit</button>
-            <button class="btn ${item.is_active ? "btn-danger" : "btn-primary"} btn-sm" onclick="toggleActive('${item.id}', ${item.is_active})">${item.is_active ? "Disable" : "Enable"}</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteSchedule('${item.id}')">Delete</button>
-          </div>
+            (r) => `
+      <div class="sched-row override">
+        <div class="sr-time">${r.scheduled_date} ${r.streaming_time}</div>
+        <div class="sr-info">
+          <div class="sr-title">${esc(r.title)}</div>
+          <div class="sr-url">${esc(r.youtube_url)}</div>
         </div>
-      `,
+        <span class="tag tag-on">Active</span>
+        <div class="sr-dur">${fmtDur(r.end_time - r.start_time)}</div>
+        <div class="sr-btns">
+          <button class="btn btn-ghost btn-xs" onclick='editRow(${JSON.stringify(r)})'>Edit</button>
+          <button class="btn btn-red btn-xs" onclick="delRow('${r.id}')">✕</button>
+        </div>
+      </div>
+    `,
           )
           .join("");
       }
 
+      // ── Render history ────────────────────────────────────────────────────
+      function renderHistory(allRows) {
+        const today = todayStr();
+        const now = nowSec();
+        const rows = allRows
+          .filter(
+            (r) =>
+              r.is_played ||
+              !r.is_active ||
+              r.scheduled_date < today ||
+              (r.scheduled_date === today &&
+                t2s(r.streaming_time) <= now &&
+                r.is_played),
+          )
+          .slice(-30)
+          .reverse(); // last 30
+
+        document.getElementById("s-played").textContent = rows.filter(
+          (r) => r.is_played,
+        ).length;
+
+        const list = document.getElementById("history-list");
+        if (!rows.length) {
+          list.innerHTML = '<div class="empty">No history yet</div>';
+          return;
+        }
+        list.innerHTML = rows
+          .map(
+            (r) => `
+      <div class="sched-row played">
+        <div class="sr-time">${r.scheduled_date} ${r.streaming_time}</div>
+        <div class="sr-info">
+          <div class="sr-title">${esc(r.title)}</div>
+          <div class="sr-url">${esc(r.youtube_url)}</div>
+        </div>
+        <span class="tag tag-played">${r.is_played ? "Played" : "Skipped"}</span>
+        <div class="sr-dur">${fmtDur(r.end_time - r.start_time)}</div>
+        <div class="sr-btns">
+          <button class="btn btn-red btn-xs" onclick="delRow('${r.id}')">✕</button>
+        </div>
+      </div>
+    `,
+          )
+          .join("");
+      }
+
+      // ── Stats ─────────────────────────────────────────────────────────────
+      function renderStats(allRows) {
+        const today = todayStr();
+        document.getElementById("s-today").textContent = allRows.filter(
+          (r) => r.scheduled_date === today && !r.is_played && r.is_active,
+        ).length;
+      }
+
+      // ── Main render ───────────────────────────────────────────────────────
+      function renderAll(allRows) {
+        renderStats(allRows);
+        renderToday(allRows);
+        renderUpcoming(allRows);
+        renderHistory(allRows);
+      }
+
+      async function refresh() {
+        const rows = await fetchAll();
+        renderAll(rows);
+      }
+
+      // ── CRUD ──────────────────────────────────────────────────────────────
       document
-        .getElementById("schedule-form")
+        .getElementById("main-form")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-          const id = document.getElementById("edit-id").value;
-          const schedule = {
-            streaming_time: document.getElementById("streaming_time").value,
-            title: document.getElementById("title").value,
-            youtube_url: document.getElementById("youtube_url").value,
-            start_time:
-              parseInt(document.getElementById("start_time").value) || 0,
-            end_time: parseInt(document.getElementById("end_time").value),
+          const id = document.getElementById("f-id").value;
+          const payload = {
+            title: document.getElementById("f-title").value.trim(),
+            youtube_url: document.getElementById("f-url").value.trim(),
+            start_time: parseInt(document.getElementById("f-start").value) || 0,
+            end_time: parseInt(document.getElementById("f-end").value),
+            scheduled_date: document.getElementById("f-date").value,
+            streaming_time: document.getElementById("f-time").value.trim(),
             is_active: true,
+            is_played: false,
           };
-          if (id) schedule.id = id;
+
+          // Validate time format
+          if (!/^\d{2}:\d{2}:\d{2}$/.test(payload.streaming_time)) {
+            showAlert("Time must be HH:MM:SS (e.g. 09:30:00)", "err");
+            return;
+          }
+          if (!payload.scheduled_date) {
+            showAlert("Please pick a date.", "err");
+            return;
+          }
+          if (payload.end_time <= payload.start_time) {
+            showAlert("Duration must be greater than start offset.", "err");
+            return;
+          }
+
           try {
-            await saveSchedule(schedule);
+            if (id) {
+              const { error } = await db
+                .from("tll_schedules")
+                .update({ ...payload, updated_at: new Date().toISOString() })
+                .eq("id", id);
+              if (error) throw error;
+              toast("✓ Schedule updated");
+            } else {
+              const { error } = await db
+                .from("tll_schedules")
+                .insert([payload]);
+              if (error) throw error;
+              toast("✓ Scheduled: " + payload.title);
+            }
             resetForm();
-            renderSchedules(await fetchSchedules());
+            refresh();
           } catch (err) {
-            showMessage("Error saving: " + err.message, "error");
+            showAlert("Save failed: " + err.message, "err");
           }
         });
 
-      async function init() {
-        const items = await fetchSchedules();
-        renderSchedules(items);
+      function editRow(r) {
+        document.getElementById("f-id").value = r.id;
+        document.getElementById("f-date").value = r.scheduled_date;
+        document.getElementById("f-time").value = r.streaming_time;
+        document.getElementById("f-title").value = r.title;
+        document.getElementById("f-url").value = r.youtube_url;
+        document.getElementById("f-start").value = r.start_time;
+        document.getElementById("f-end").value = r.end_time;
+        document.getElementById("form-hd").textContent = "Edit Schedule";
+        document.getElementById("f-submit").textContent = "✓ Save Changes";
+        document
+          .getElementById("form-card")
+          .scrollIntoView({ behavior: "smooth" });
+        document.getElementById("f-title").focus();
       }
-      init();
+
+      async function delRow(id) {
+        if (!confirm("Remove this schedule entry?")) return;
+        const { error } = await db.from("tll_schedules").delete().eq("id", id);
+        if (error) {
+          showAlert("Delete failed: " + error.message, "err");
+          return;
+        }
+        toast("✓ Removed");
+        refresh();
+      }
+
+      function resetForm() {
+        document.getElementById("main-form").reset();
+        document.getElementById("f-id").value = "";
+        document.getElementById("f-start").value = "0";
+        document.getElementById("f-end").value = "3600";
+        document.getElementById("f-date").value = todayStr();
+        document.getElementById("form-hd").textContent = "Schedule a Video";
+        document.getElementById("f-submit").textContent = "＋ Add to Schedule";
+      }
+
+      // ── Tabs ──────────────────────────────────────────────────────────────
+      function switchTab(name, btn) {
+        ["upcoming", "history", "setup"].forEach((t) => {
+          document.getElementById("tab-" + t).style.display =
+            t === name ? "block" : "none";
+        });
+        document
+          .querySelectorAll(".tab")
+          .forEach((b) => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+      }
+
+      // ── Init ──────────────────────────────────────────────────────────────
+      resetForm(); // set default date to today
+      refresh();
+      // Refresh every 30s to catch new plays
+      setInterval(refresh, 30000);
+      // Reposition NOW line every minute
+      setInterval(async () => renderAll(await fetchAll()), 60000);
     </script>
   </body>
 </html>
