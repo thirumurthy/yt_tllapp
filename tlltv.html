@@ -6,10 +6,6 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-    <meta
-      http-equiv="Cache-Control"
-      content="no-cache, no-store, must-revalidate"
-    />
     <title>TLL TV · Live</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
@@ -17,14 +13,11 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-      *,
-      *::before,
-      *::after {
+      * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
-
       html,
       body {
         width: 100%;
@@ -33,14 +26,11 @@
         overflow: hidden;
         font-family: "Space Mono", monospace;
       }
-
-      /* ── Full-viewport YouTube player ── */
       #yt-wrap {
         position: fixed;
         inset: 0;
         z-index: 1;
       }
-      /* Oversized iframe to fill screen in all aspect ratios */
       #yt-wrap iframe {
         position: absolute;
         top: 50%;
@@ -53,18 +43,12 @@
         border: none;
         pointer-events: none;
       }
-
-      /* Tap shield — removed after unmute */
       #tap-shield {
         position: fixed;
         inset: 0;
         z-index: 2;
         cursor: default;
       }
-
-      /* ══════════════════════════════════════
-       CHANNEL BUG — top left
-    ══════════════════════════════════════ */
       #channel-bug {
         position: fixed;
         top: 20px;
@@ -77,15 +61,11 @@
         align-items: flex-start;
         gap: 5px;
       }
-
-      /* Logo row */
       .bug-row {
         display: flex;
         align-items: center;
         gap: 8px;
       }
-
-      /* Pulsing live dot */
       .live-dot {
         width: 9px;
         height: 9px;
@@ -106,14 +86,12 @@
           box-shadow: 0 0 0 0 rgba(224, 32, 32, 0);
         }
       }
-
-      /* TLL TV logotype */
       .logo-text {
         font-family: "Bebas Neue", sans-serif;
         font-size: 32px;
         letter-spacing: 0.14em;
         line-height: 1;
-        color: #ffffff;
+        color: #fff;
         text-shadow:
           0 0 24px rgba(255, 255, 255, 0.3),
           0 2px 8px rgba(0, 0, 0, 1);
@@ -121,8 +99,6 @@
       .logo-text .tv {
         color: #f0b020;
       }
-
-      /* Hairline rule */
       .bug-rule {
         width: calc(100% + 4px);
         height: 1.5px;
@@ -133,8 +109,6 @@
         );
         margin-left: -2px;
       }
-
-      /* Clock */
       #bug-clock {
         font-family: "Space Mono", monospace;
         font-size: 12px;
@@ -145,8 +119,6 @@
           0 1px 3px rgba(0, 0, 0, 1),
           0 0 10px rgba(0, 0, 0, 0.9);
       }
-
-      /* Admin badge */
       #admin-badge {
         position: fixed;
         bottom: 20px;
@@ -171,10 +143,6 @@
         color: #f0b020;
         border-color: rgba(240, 176, 32, 0.3);
       }
-
-      /* ══════════════════════════════════════
-       LIVE BADGE — top right
-    ══════════════════════════════════════ */
       #live-badge {
         position: fixed;
         top: 20px;
@@ -213,10 +181,6 @@
         color: #fff;
         text-transform: uppercase;
       }
-
-      /* ══════════════════════════════════════
-       BOTTOM TITLE STRIP
-    ══════════════════════════════════════ */
       #prog-strip {
         position: fixed;
         bottom: 0;
@@ -239,7 +203,6 @@
       #prog-strip.on {
         opacity: 1;
       }
-
       .now-pill {
         font-size: 9px;
         font-weight: 700;
@@ -260,10 +223,6 @@
         color: #fff;
         text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
       }
-
-      /* ══════════════════════════════════════
-       MUTE / CLICK-TO-WATCH OVERLAY
-    ══════════════════════════════════════ */
       #mute-cover {
         position: fixed;
         inset: 0;
@@ -279,7 +238,6 @@
         opacity: 0;
         pointer-events: none;
       }
-
       .mute-card {
         display: flex;
         flex-direction: column;
@@ -309,10 +267,6 @@
         text-transform: uppercase;
         color: rgba(255, 255, 255, 0.75);
       }
-
-      /* ══════════════════════════════════════
-       LOADING SCREEN
-    ══════════════════════════════════════ */
       #loader {
         position: fixed;
         inset: 0;
@@ -329,7 +283,6 @@
         opacity: 0;
         pointer-events: none;
       }
-
       .load-logo {
         font-family: "Bebas Neue", sans-serif;
         font-size: 56px;
@@ -339,7 +292,6 @@
       .load-logo span {
         color: #f0b020;
       }
-
       .load-bar-bg {
         width: 160px;
         height: 2px;
@@ -361,17 +313,12 @@
           width: 100%;
         }
       }
-
       .load-sub {
         font-size: 9px;
         letter-spacing: 0.25em;
         color: rgba(255, 255, 255, 0.25);
         text-transform: uppercase;
       }
-
-      /* ══════════════════════════════════════
-       CHANNEL TRANSITION FLASH
-    ══════════════════════════════════════ */
       #flash {
         position: fixed;
         inset: 0;
@@ -387,13 +334,8 @@
     </style>
   </head>
   <body>
-    <!-- ── Video layer ── -->
     <div id="yt-wrap"><div id="yt-player"></div></div>
-
-    <!-- ── Tap shield ── -->
     <div id="tap-shield"></div>
-
-    <!-- ── Channel bug: TLL TV logo + clock ── -->
     <div id="channel-bug">
       <div class="bug-row">
         <div class="live-dot"></div>
@@ -402,51 +344,33 @@
       <div class="bug-rule"></div>
       <span id="bug-clock">00:00:00</span>
     </div>
-
-    <!-- ── LIVE badge ── -->
     <div id="live-badge">
       <div class="live-blink"></div>
       <span class="live-text">Live</span>
     </div>
-
-    <!-- ── Admin link ── -->
     <div id="admin-badge">
       <a href="admin.html" class="admin-link">Admin</a>
     </div>
-
-    <!-- ── Bottom program strip ── -->
     <div id="prog-strip">
-      <span class="now-pill">Now Playing</span>
-      <span id="prog-title">—</span>
+      <span class="now-pill">Now Playing</span><span id="prog-title">—</span>
     </div>
-
-    <!-- ── Click-to-watch overlay ── -->
     <div id="mute-cover">
       <div class="mute-card">
-        <span class="material-symbols-outlined mute-icon">volume_up</span>
-        <span class="mute-hint">Tap anywhere to watch</span>
+        <span class="material-symbols-outlined mute-icon">volume_up</span
+        ><span class="mute-hint">Tap anywhere to watch</span>
       </div>
     </div>
-
-    <!-- ── Loading screen ── -->
     <div id="loader">
       <div class="load-logo">TLL <span>TV</span></div>
       <div class="load-bar-bg"><div class="load-bar"></div></div>
       <div class="load-sub">Tuning in…</div>
     </div>
-
-    <!-- ── Transition flash ── -->
     <div id="flash"></div>
-
     <script>
-      // ── Supabase Config ──
       const SUPABASE_URL = "https://wadxjpvokisrgyqkqnrc.supabase.co";
       const SUPABASE_KEY = "sb_publishable_e4SNfQTuep0XcqCfHqSyHg_jB1AZn72";
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
       const TIMEZONE = "Asia/Kolkata";
-
-      // ── Default Playlist (fallback) ──
       const DEFAULT_PLAYLIST = [
         {
           streamingTime: "00:00:00",
@@ -596,10 +520,7 @@
           url: "https://www.youtube.com/watch?v=kT6BJcF3ajM",
         },
       ];
-
-      // ── ENGINE ──
       let PLAYLIST = [...DEFAULT_PLAYLIST];
-
       async function fetchPlaylist() {
         try {
           const { data, error } = await supabase
@@ -607,9 +528,7 @@
             .select("*")
             .eq("is_active", true)
             .order("streaming_time");
-
           if (error) throw error;
-
           if (data && data.length > 0) {
             PLAYLIST = data.map((item) => ({
               streamingTime: item.streaming_time,
@@ -618,43 +537,28 @@
               title: item.title,
               url: item.youtube_url,
             }));
-            console.log(
-              "Loaded custom playlist from Supabase:",
-              PLAYLIST.length,
-              "items",
-            );
-          } else {
-            console.log("No custom schedules found, using default playlist");
           }
         } catch (err) {
-          console.warn(
-            "Failed to fetch from Supabase, using default playlist:",
-            err.message,
-          );
+          console.warn("Using default playlist");
         }
       }
-
       PLAYLIST.sort((a, b) => t2s(a.streamingTime) - t2s(b.streamingTime));
-
-      let ytPlayer = null;
-      let playerReady = false;
-      let currentIdx = -1;
-      let nextTimer = null;
-      let isMuted = true;
-      let pendingLoad = null;
-
+      let ytPlayer = null,
+        playerReady = false,
+        currentIdx = -1,
+        nextTimer = null,
+        isMuted = true,
+        pendingLoad = null;
       function t2s(str) {
         const p = String(str).split(":").map(Number);
         return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : 0;
       }
-
       function nowSec() {
         const d = new Date(
           new Date().toLocaleString("en-US", { timeZone: TIMEZONE }),
         );
         return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
       }
-
       function ytId(url) {
         try {
           const u = new URL(url);
@@ -665,8 +569,6 @@
         } catch {}
         return null;
       }
-
-      // ── Clock ──
       function tickClock() {
         const d = new Date(
           new Date().toLocaleString("en-US", { timeZone: TIMEZONE }),
@@ -680,36 +582,28 @@
       }
       setInterval(tickClock, 1000);
       tickClock();
-
-      // ── Loader dismiss after 3 s ──
       setTimeout(() => {
         const lo = document.getElementById("loader");
         lo.classList.add("out");
         setTimeout(() => (lo.style.display = "none"), 900);
       }, 3000);
-
-      // ── Play logic ──
       function playProgram(idx, offset) {
         if (nextTimer) clearTimeout(nextTimer);
         currentIdx = idx;
-
-        const prog = PLAYLIST[idx];
-        const vid = ytId(prog.url);
+        const prog = PLAYLIST[idx],
+          vid = ytId(prog.url);
         if (!vid) {
           scheduleNext(idx);
           return;
         }
-
         const seekTo = prog.startTime + Math.floor(offset);
         document.getElementById("prog-title").textContent = prog.title;
         document.getElementById("prog-strip").classList.add("on");
-
         if (playerReady) {
           const fl = document.getElementById("flash");
           fl.classList.add("show");
           setTimeout(() => fl.classList.remove("show"), 380);
         }
-
         if (playerReady) {
           ytPlayer.loadVideoById({ videoId: vid, startSeconds: seekTo });
           if (isMuted) ytPlayer.mute();
@@ -717,21 +611,16 @@
         } else {
           pendingLoad = { videoId: vid, startSeconds: seekTo };
         }
-
         scheduleNext(idx);
       }
-
       function scheduleNext(idx) {
-        const now = nowSec();
-        const nextIdx = (idx + 1) % PLAYLIST.length;
-        const nextAt = t2s(PLAYLIST[nextIdx].streamingTime);
-
+        const now = nowSec(),
+          nextIdx = (idx + 1) % PLAYLIST.length,
+          nextAt = t2s(PLAYLIST[nextIdx].streamingTime);
         let ms;
-        if (nextAt > now) {
-          ms = (nextAt - now) * 1000;
-        } else if (nextIdx === 0) {
-          ms = (86400 - now + nextAt) * 1000;
-        } else {
+        if (nextAt > now) ms = (nextAt - now) * 1000;
+        else if (nextIdx === 0) ms = (86400 - now + nextAt) * 1000;
+        else {
           const p = PLAYLIST[idx];
           ms =
             Math.max(t2s(p.streamingTime) + p.endTime - p.startTime - now, 5) *
@@ -739,7 +628,6 @@
         }
         nextTimer = setTimeout(() => playProgram(nextIdx, 0), ms + 800);
       }
-
       function findAndPlay() {
         const now = nowSec();
         let idx = PLAYLIST.length - 1;
@@ -749,16 +637,13 @@
             break;
           }
         }
-        const prog = PLAYLIST[idx];
-        const starts = t2s(prog.streamingTime);
-        const dur = prog.endTime - prog.startTime;
-        const offset = now >= starts ? now - starts : now + 86400 - starts;
-
+        const prog = PLAYLIST[idx],
+          starts = t2s(prog.streamingTime),
+          dur = prog.endTime - prog.startTime,
+          offset = now >= starts ? now - starts : now + 86400 - starts;
         if (offset >= dur) playProgram((idx + 1) % PLAYLIST.length, 0);
         else playProgram(idx, offset);
       }
-
-      // ── YouTube IFrame API ──
       function onYouTubeIframeAPIReady() {
         ytPlayer = new YT.Player("yt-player", {
           width: "100%",
@@ -783,7 +668,6 @@
           },
         });
       }
-
       function onReady(e) {
         playerReady = true;
         e.target.mute();
@@ -794,14 +678,14 @@
           findAndPlay();
         }
         document.getElementById("mute-cover").style.display = "flex";
-        scheduleAutoUnmute();
+        setTimeout(() => {
+          if (!hasAutoUnmuted) autoUnmute();
+        }, 1500);
       }
-
       function onStateChange(e) {
         if (e.data === YT.PlayerState.ENDED)
           playProgram((currentIdx + 1) % PLAYLIST.length, 0);
       }
-
       function onError(e) {
         console.warn("YT error:", e.data);
         setTimeout(
@@ -809,14 +693,10 @@
           2000,
         );
       }
-
-      // ── Auto-unmute ──
       let hasAutoUnmuted = false;
-
       function autoUnmute() {
         if (hasAutoUnmuted) return;
         hasAutoUnmuted = true;
-
         isMuted = false;
         if (ytPlayer && playerReady) {
           ytPlayer.unMute();
@@ -829,35 +709,19 @@
         if (iframe) iframe.style.pointerEvents = "auto";
         document.getElementById("tap-shield").style.display = "none";
       }
-
-      function unmuteOnTap() {
-        autoUnmute();
-      }
       document
         .getElementById("mute-cover")
-        .addEventListener("click", unmuteOnTap);
+        .addEventListener("click", autoUnmute);
       document
         .getElementById("tap-shield")
-        .addEventListener("click", unmuteOnTap);
-
-      function scheduleAutoUnmute() {
-        setTimeout(() => {
-          if (!hasAutoUnmuted) autoUnmute();
-        }, 1500);
-      }
-
-      // ── Pre-fill title ──
+        .addEventListener("click", autoUnmute);
       function updatePreTitle() {
-        const pre = (() => {
-          const now = nowSec();
-          let i = PLAYLIST.length - 1;
-          for (; i >= 0; i--) if (t2s(PLAYLIST[i].streamingTime) <= now) break;
-          return Math.max(i, 0);
-        })();
-        document.getElementById("prog-title").textContent = PLAYLIST[pre].title;
+        const now = nowSec();
+        let i = PLAYLIST.length - 1;
+        for (; i >= 0; i--) if (t2s(PLAYLIST[i].streamingTime) <= now) break;
+        document.getElementById("prog-title").textContent =
+          PLAYLIST[Math.max(i, 0)].title;
       }
-
-      // ── Init ──
       async function init() {
         await fetchPlaylist();
         PLAYLIST.sort((a, b) => t2s(a.streamingTime) - t2s(b.streamingTime));
@@ -865,8 +729,6 @@
       }
       init();
     </script>
-
-    <!-- YouTube API loaded LAST so onYouTubeIframeAPIReady is already defined -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
