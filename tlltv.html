@@ -79,7 +79,7 @@
           );
       }
 
-      /* ── Channel bug: top-left ── */
+      /* Channel bug */
       #bug {
         position: fixed;
         top: 20px;
@@ -145,12 +145,10 @@
         font-weight: 700;
         letter-spacing: 0.1em;
         color: rgba(255, 255, 255, 0.82);
-        text-shadow:
-          0 1px 3px rgba(0, 0, 0, 1),
-          0 0 10px rgba(0, 0, 0, 0.9);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
       }
 
-      /* ── LIVE badge: top-right ── */
+      /* LIVE badge */
       #live-badge {
         position: fixed;
         top: 20px;
@@ -190,7 +188,7 @@
         text-transform: uppercase;
       }
 
-      /* ── Program strip: bottom ── */
+      /* Program strip */
       #prog-strip {
         position: fixed;
         bottom: 0;
@@ -233,7 +231,6 @@
         color: #fff;
         text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
       }
-      /* Override badge on program title */
       .override-dot {
         display: inline-block;
         width: 7px;
@@ -263,7 +260,7 @@
         transition: width 1s linear;
       }
 
-      /* ── Admin link: bottom-right ── */
+      /* Admin link */
       #admin-btn {
         position: fixed;
         bottom: 20px;
@@ -286,7 +283,7 @@
         border-color: rgba(240, 176, 32, 0.3);
       }
 
-      /* ── Mute overlay ── */
+      /* Mute overlay */
       #mute-cover {
         position: fixed;
         inset: 0;
@@ -332,7 +329,7 @@
         color: rgba(255, 255, 255, 0.75);
       }
 
-      /* ── Loader ── */
+      /* Loader */
       #loader {
         position: fixed;
         inset: 0;
@@ -386,7 +383,7 @@
         text-transform: uppercase;
       }
 
-      /* ── Transition flash ── */
+      /* Transition flash */
       #flash {
         position: fixed;
         inset: 0;
@@ -441,24 +438,18 @@
     </div>
 
     <div id="prog-track"><div id="prog-fill"></div></div>
-
     <a href="tlladmin.html" id="admin-btn">⚙ Schedule</a>
 
     <script>
       // ══════════════════════════════════════════════════════════════════════
-      //  CONFIGURATION
+      //  CONFIG
       // ══════════════════════════════════════════════════════════════════════
       const SUPABASE_URL = "https://wadxjpvokisrgyqkqnrc.supabase.co";
       const SUPABASE_KEY = "sb_publishable_e4SNfQTuep0XcqCfHqSyHg_jB1AZn72";
       const TIMEZONE = "Asia/Kolkata";
 
       // ══════════════════════════════════════════════════════════════════════
-      //  DEFAULT SCHEDULE  (repeats every day, always fallback)
-      //  streamingTime : "HH:MM:SS"  — when it airs in TIMEZONE
-      //  startTime     : seconds     — offset into the YouTube video
-      //  endTime       : seconds     — stop at this second in the video
-      //  title         : string
-      //  url           : YouTube watch URL
+      //  DEFAULT SCHEDULE — plays every day unless overridden
       // ══════════════════════════════════════════════════════════════════════
       const DEFAULT_SCHEDULE = [
         {
@@ -615,7 +606,7 @@
       // ══════════════════════════════════════════════════════════════════════
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      let PLAYLIST = []; // merged: default + today's overrides
+      let PLAYLIST = [];
       let ytPlayer = null;
       let playerReady = false;
       let currentIdx = -1;
@@ -624,6 +615,11 @@
       let isMuted = true;
       let pendingLoad = null;
       let hasUnmuted = false;
+
+      // ── CRITICAL: switching guard prevents double-fires ──────────────────
+      // Both the scheduler timer AND onStateChange(ENDED) can call playProgram.
+      // This flag ensures only ONE transition happens at a time.
+      let isSwitching = false;
 
       // ── Utilities ────────────────────────────────────────────────────────
       function t2s(str) {
@@ -640,7 +636,6 @@
         return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
       }
       function todayStr() {
-        // "YYYY-MM-DD" in IST
         const d = nowIST();
         return (
           d.getFullYear() +
@@ -683,14 +678,13 @@
           }));
         } catch (e) {
           console.warn(
-            "Supabase fetch failed, running default only.",
+            "Supabase unavailable, using default schedule.",
             e.message,
           );
           return [];
         }
       }
 
-      // ── Mark an override as played ───────────────────────────────────────
       async function markPlayed(id) {
         if (!id) return;
         try {
@@ -698,26 +692,23 @@
             .from("tll_schedules")
             .update({ is_played: true, played_at: new Date().toISOString() })
             .eq("id", id);
-        } catch (e) {
-          console.warn("markPlayed failed:", e.message);
-        }
+        } catch {}
       }
 
-      // ── Build merged playlist ─────────────────────────────────────────────
-      // Overrides inject at their scheduled time.
-      // Default entries fill every other slot.
-      // If an override has the exact same HH:MM:SS as a default, override wins.
+      // ── Build merged playlist ────────────────────────────────────────────
+      // Override entries replace any default entry at the exact same time slot.
+      // Other default entries fill the rest.
       function buildPlaylist(overrides) {
-        const overrideTimes = new Set(overrides.map((o) => o.streamingTime));
+        const ovrTimes = new Set(overrides.map((o) => o.streamingTime));
         const defaults = DEFAULT_SCHEDULE.filter(
-          (d) => !overrideTimes.has(d.streamingTime),
+          (d) => !ovrTimes.has(d.streamingTime),
         ).map((d) => ({ ...d, isOverride: false, overrideId: null }));
         return [...defaults, ...overrides].sort(
           (a, b) => t2s(a.streamingTime) - t2s(b.streamingTime),
         );
       }
 
-      // ── Clock ─────────────────────────────────────────────────────────────
+      // ── Clock ────────────────────────────────────────────────────────────
       (function tick() {
         const d = nowIST();
         document.getElementById("bug-clock").textContent =
@@ -729,7 +720,7 @@
         setTimeout(tick, 1000);
       })();
 
-      // ── Progress bar ──────────────────────────────────────────────────────
+      // ── Progress bar ─────────────────────────────────────────────────────
       function startProgress(idx, offset) {
         clearInterval(progTimer);
         const total = PLAYLIST[idx].endTime - PLAYLIST[idx].startTime;
@@ -743,39 +734,44 @@
         progTimer = setInterval(step, 1000);
       }
 
-      // ── Play a program ────────────────────────────────────────────────────
+      // ── Core: play a program ─────────────────────────────────────────────
       function playProgram(idx, offset) {
-        if (nextTimer) clearTimeout(nextTimer);
+        // ── GUARD: block concurrent calls ──
+        if (isSwitching) return;
+        isSwitching = true;
+
+        // Cancel any pending timer so it can't fire again for this same slot
+        if (nextTimer) {
+          clearTimeout(nextTimer);
+          nextTimer = null;
+        }
 
         // Mark previous override as played
-        if (
-          currentIdx >= 0 &&
-          PLAYLIST[currentIdx] &&
-          PLAYLIST[currentIdx].isOverride
-        ) {
+        if (currentIdx >= 0 && PLAYLIST[currentIdx]?.isOverride) {
           markPlayed(PLAYLIST[currentIdx].overrideId);
         }
 
         currentIdx = idx;
         const prog = PLAYLIST[idx];
         const vid = ytId(prog.url);
+
         if (!vid) {
+          isSwitching = false;
           scheduleNext(idx);
           return;
         }
 
         const seekTo = prog.startTime + Math.floor(offset);
 
-        // Update title (with gold dot if override)
+        // Update title
         const titleEl = document.getElementById("prog-title");
         titleEl.innerHTML = prog.isOverride
           ? `<span class="override-dot"></span>${prog.title}`
           : prog.title;
-
         document.getElementById("prog-strip").classList.add("on");
         startProgress(idx, offset);
 
-        // Transition flash (not on very first load)
+        // Transition flash
         if (playerReady) {
           const fl = document.getElementById("flash");
           fl.classList.add("show");
@@ -790,59 +786,73 @@
           pendingLoad = { videoId: vid, startSeconds: seekTo };
         }
 
+        // Release switching guard AFTER a short delay
+        // This prevents rapid re-triggers from ENDED events during load
+        setTimeout(() => {
+          isSwitching = false;
+        }, 2000);
+
         scheduleNext(idx);
       }
 
-      // ── Schedule the next video ───────────────────────────────────────────
+      // ── Schedule when to switch to the next slot ─────────────────────────
       function scheduleNext(idx) {
+        if (nextTimer) {
+          clearTimeout(nextTimer);
+          nextTimer = null;
+        }
+
         const now = nowSec();
         const nextIdx = (idx + 1) % PLAYLIST.length;
         const nextAt = t2s(PLAYLIST[nextIdx].streamingTime);
-        let ms;
 
+        let ms;
         if (nextAt > now) {
           ms = (nextAt - now) * 1000;
         } else if (nextIdx === 0) {
-          // Wraps past midnight — rebuild playlist at midnight (overrides reset)
+          // Wraps past midnight — next item is first in list (tomorrow)
           ms = (86400 - now + nextAt) * 1000;
-          // Refresh playlist at midnight
-          setTimeout(
-            async () => {
-              const overrides = await fetchOverrides();
-              PLAYLIST = buildPlaylist(overrides);
-            },
-            (86400 - now) * 1000,
-          );
+          // At midnight: re-fetch overrides for the new day
+          const msToMidnight = (86400 - now) * 1000;
+          setTimeout(async () => {
+            const overrides = await fetchOverrides();
+            PLAYLIST = buildPlaylist(overrides);
+          }, msToMidnight + 2000);
         } else {
+          // Fallback: schedule based on duration remaining
           const p = PLAYLIST[idx];
-          ms =
-            Math.max(
-              t2s(p.streamingTime) + (p.endTime - p.startTime) - now,
-              5,
-            ) * 1000;
+          const end = t2s(p.streamingTime) + (p.endTime - p.startTime);
+          ms = Math.max((end - now) * 1000, 5000);
         }
 
-        nextTimer = setTimeout(() => playProgram(nextIdx, 0), ms + 600);
+        // Extra 1.5s buffer so the timer fires slightly AFTER the slot begins,
+        // avoiding the race condition where the timer fires just before midnight
+        // and ENDED fires at the same instant
+        nextTimer = setTimeout(() => playProgram(nextIdx, 0), ms + 1500);
       }
 
-      // ── Find what should be playing right now ────────────────────────────
+      // ── Find currently airing slot and jump in ───────────────────────────
       function findAndPlay() {
         const now = nowSec();
-        let idx = PLAYLIST.length - 1;
+        let idx = 0;
+
+        // Walk from the end: find last slot that started at or before now
         for (let i = PLAYLIST.length - 1; i >= 0; i--) {
           if (t2s(PLAYLIST[i].streamingTime) <= now) {
             idx = i;
             break;
           }
         }
+
         const prog = PLAYLIST[idx];
         const starts = t2s(prog.streamingTime);
         const dur = prog.endTime - prog.startTime;
         const offset = now >= starts ? now - starts : now + 86400 - starts;
 
         if (offset >= dur) {
-          // This slot is over, go to next
-          playProgram((idx + 1) % PLAYLIST.length, 0);
+          // This slot has already finished; play next
+          const next = (idx + 1) % PLAYLIST.length;
+          playProgram(next, 0);
         } else {
           playProgram(idx, offset);
         }
@@ -886,24 +896,35 @@
         }
 
         document.getElementById("mute-cover").style.display = "flex";
-        // Try auto-unmute (works on some browsers / desktop)
         setTimeout(() => {
           if (!hasUnmuted) doUnmute();
         }, 1200);
       }
 
       function onStateChange(e) {
-        if (e.data === YT.PlayerState.ENDED) {
+        // ENDED (0) — only trigger if not already switching and the timer is far away
+        if (e.data === YT.PlayerState.ENDED && !isSwitching) {
+          // Cancel the scheduled timer — we'll handle the transition now
+          if (nextTimer) {
+            clearTimeout(nextTimer);
+            nextTimer = null;
+          }
           playProgram((currentIdx + 1) % PLAYLIST.length, 0);
         }
       }
 
       function onError(e) {
-        console.warn("YT error:", e.data, "— skipping");
-        setTimeout(
-          () => playProgram((currentIdx + 1) % PLAYLIST.length, 0),
-          2000,
-        );
+        console.warn("YT error:", e.data, "— skipping to next");
+        if (nextTimer) {
+          clearTimeout(nextTimer);
+          nextTimer = null;
+        }
+        if (!isSwitching) {
+          setTimeout(
+            () => playProgram((currentIdx + 1) % PLAYLIST.length, 0),
+            2000,
+          );
+        }
       }
 
       // ── Unmute ────────────────────────────────────────────────────────────
@@ -933,15 +954,17 @@
         setTimeout(() => (lo.style.display = "none"), 900);
       }, 3000);
 
-      // ── Init ──────────────────────────────────────────────────────────────
+      // ── Init ─────────────────────────────────────────────────────────────
       (async function init() {
         const overrides = await fetchOverrides();
         PLAYLIST = buildPlaylist(overrides);
 
-        // Pre-fill title before YT player loads
+        // Pre-fill title immediately
         const now = nowSec();
         let i = PLAYLIST.length - 1;
-        for (; i >= 0; i--) if (t2s(PLAYLIST[i].streamingTime) <= now) break;
+        for (; i >= 0; i--) {
+          if (t2s(PLAYLIST[i].streamingTime) <= now) break;
+        }
         const cur = PLAYLIST[Math.max(i, 0)];
         document.getElementById("prog-title").textContent = cur.title;
         document.getElementById("prog-strip").classList.add("on");

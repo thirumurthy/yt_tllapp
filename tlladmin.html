@@ -41,7 +41,7 @@
         padding-bottom: 60px;
       }
 
-      /* ── Header ── */
+      /* Header */
       .hdr {
         position: sticky;
         top: 0;
@@ -70,10 +70,11 @@
         gap: 8px;
       }
 
-      /* ── Buttons ── */
+      /* Buttons */
       .btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
         padding: 9px 18px;
         border: none;
@@ -88,11 +89,15 @@
         text-decoration: none;
         white-space: nowrap;
       }
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
       .btn-gold {
         background: var(--gold);
         color: #08090d;
       }
-      .btn-gold:hover {
+      .btn-gold:hover:not(:disabled) {
         background: #ffc845;
       }
       .btn-ghost {
@@ -100,7 +105,7 @@
         color: var(--text);
         border: 1px solid var(--border);
       }
-      .btn-ghost:hover {
+      .btn-ghost:hover:not(:disabled) {
         background: rgba(255, 255, 255, 0.13);
       }
       .btn-red {
@@ -108,53 +113,60 @@
         color: #e85555;
         border: 1px solid rgba(224, 32, 32, 0.25);
       }
-      .btn-red:hover {
-        background: rgba(224, 32, 32, 0.28);
+      .btn-red:hover:not(:disabled) {
+        background: rgba(224, 32, 32, 0.3);
       }
-      .btn-green {
-        background: rgba(61, 186, 111, 0.15);
-        color: var(--green);
-        border: 1px solid rgba(61, 186, 111, 0.25);
+      .btn-amber {
+        background: rgba(240, 176, 32, 0.12);
+        color: var(--gold);
+        border: 1px solid rgba(240, 176, 32, 0.25);
       }
-      .btn-green:hover {
-        background: rgba(61, 186, 111, 0.28);
+      .btn-amber:hover:not(:disabled) {
+        background: rgba(240, 176, 32, 0.22);
       }
       .btn-sm {
-        padding: 5px 12px;
+        padding: 6px 14px;
         font-size: 10px;
       }
       .btn-xs {
         padding: 3px 9px;
         font-size: 9px;
         letter-spacing: 0.06em;
+        border-radius: 4px;
       }
 
-      /* ── Layout ── */
+      /* Layout */
       .wrap {
-        max-width: 1000px;
+        max-width: 960px;
         margin: 0 auto;
-        padding: 24px 20px;
+        padding: 22px 18px;
       }
 
-      /* ── Cards ── */
+      /* Cards */
       .card {
         background: var(--surf);
         border: 1px solid var(--border);
         border-radius: 10px;
-        padding: 22px;
-        margin-bottom: 18px;
+        padding: 20px;
+        margin-bottom: 16px;
       }
       .card-hd {
         font-family: "Bebas Neue", sans-serif;
         font-size: 18px;
         letter-spacing: 0.12em;
         color: var(--gold);
-        margin-bottom: 18px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .card-hd-left {
         display: flex;
         align-items: center;
         gap: 10px;
       }
-      .card-hd::before {
+      .card-hd-left::before {
         content: "";
         width: 3px;
         height: 16px;
@@ -163,22 +175,22 @@
         flex-shrink: 0;
       }
 
-      /* ── Stats ── */
+      /* Stats */
       .stats {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 12px;
-        margin-bottom: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 10px;
+        margin-bottom: 18px;
       }
       .stat {
         background: var(--surf2);
         border: 1px solid var(--border);
         border-radius: 8px;
-        padding: 14px 18px;
+        padding: 12px 16px;
       }
       .stat-val {
         font-family: "Bebas Neue", sans-serif;
-        font-size: 30px;
+        font-size: 28px;
         color: var(--gold);
         letter-spacing: 0.06em;
       }
@@ -190,11 +202,11 @@
         margin-top: 2px;
       }
 
-      /* ── Form ── */
+      /* Form */
       .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-        gap: 13px;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
       }
       .fg {
         display: flex;
@@ -212,11 +224,12 @@
         background: rgba(0, 0, 0, 0.4);
         border: 1px solid rgba(255, 255, 255, 0.09);
         border-radius: 6px;
-        padding: 10px 13px;
+        padding: 10px 12px;
         color: #fff;
         font-family: "Space Mono", monospace;
         font-size: 13px;
         transition: border-color 0.2s;
+        width: 100%;
       }
       .fg input:focus,
       .fg select:focus {
@@ -236,22 +249,22 @@
       .form-actions {
         display: flex;
         gap: 10px;
-        margin-top: 18px;
+        margin-top: 16px;
         flex-wrap: wrap;
       }
 
-      /* ── Tabs ── */
+      /* Tabs */
       .tabs {
         display: flex;
         gap: 2px;
         background: rgba(0, 0, 0, 0.3);
         border-radius: 7px;
         padding: 3px;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
         width: fit-content;
       }
       .tab {
-        padding: 7px 18px;
+        padding: 7px 16px;
         border-radius: 5px;
         font-size: 10px;
         font-weight: 700;
@@ -269,29 +282,28 @@
         color: var(--gold);
       }
 
-      /* ── Schedule list ── */
+      /* Schedule list */
       .sched-list {
         display: flex;
         flex-direction: column;
-        gap: 7px;
+        gap: 6px;
       }
 
       .sched-row {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         background: var(--surf2);
         border: 1px solid var(--border);
         border-left: 3px solid transparent;
         border-radius: 8px;
-        padding: 13px 16px;
+        padding: 12px 14px;
         transition:
           border-color 0.2s,
           background 0.2s;
       }
       .sched-row:hover {
         background: rgba(255, 255, 255, 0.03);
-        border-left-color: rgba(240, 176, 32, 0.35);
       }
       .sched-row.override {
         border-left-color: var(--gold);
@@ -311,10 +323,10 @@
         font-size: 12px;
         font-weight: 700;
         color: var(--gold);
-        min-width: 68px;
+        min-width: 64px;
         white-space: nowrap;
       }
-      .sr-time.default {
+      .sr-time.def {
         color: var(--muted);
       }
       .sr-info {
@@ -325,7 +337,7 @@
         font-size: 12px;
         font-weight: 700;
         color: #fff;
-        margin-bottom: 3px;
+        margin-bottom: 2px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -340,13 +352,13 @@
       .sr-dur {
         font-size: 10px;
         color: var(--muted);
-        min-width: 62px;
+        min-width: 58px;
         text-align: right;
         white-space: nowrap;
       }
       .sr-btns {
         display: flex;
-        gap: 6px;
+        gap: 5px;
         flex-shrink: 0;
       }
 
@@ -361,7 +373,7 @@
         border: 1px solid;
         white-space: nowrap;
       }
-      .tag-live {
+      .tag-air {
         color: var(--red);
         background: rgba(224, 32, 32, 0.12);
         border-color: rgba(224, 32, 32, 0.3);
@@ -386,18 +398,104 @@
         background: rgba(61, 186, 111, 0.1);
         border-color: rgba(61, 186, 111, 0.25);
       }
-      .tag-off {
+
+      /* Copy panel */
+      .copy-panel {
+        background: var(--surf2);
+        border: 1px solid rgba(240, 176, 32, 0.15);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .copy-panel.open {
+        display: block;
+      }
+      .copy-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .copy-row label {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
         color: var(--muted);
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .copy-row input[type="date"] {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: #fff;
+        font-family: "Space Mono", monospace;
+        font-size: 12px;
+      }
+      .copy-row input[type="date"]:focus {
+        outline: none;
+        border-color: rgba(240, 176, 32, 0.5);
+      }
+      #copy-preview {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 8px;
+        min-height: 18px;
       }
 
-      /* ── Alert / Toast ── */
+      /* Confirm modal */
+      .modal-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s;
+      }
+      .modal-bg.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: var(--surf);
+        border: 1px solid rgba(240, 176, 32, 0.2);
+        border-radius: 12px;
+        padding: 28px 32px;
+        max-width: 380px;
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .modal h3 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 20px;
+        letter-spacing: 0.1em;
+        color: var(--gold);
+      }
+      .modal p {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      .modal-btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 4px;
+      }
+
+      /* Alert / Toast */
       .alert {
-        padding: 11px 16px;
+        padding: 11px 15px;
         border-radius: 7px;
         font-size: 12px;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
         display: none;
       }
       .alert-ok {
@@ -410,16 +508,15 @@
         border: 1px solid rgba(224, 32, 32, 0.25);
         color: #e85555;
       }
-
       #toast {
         position: fixed;
         bottom: 22px;
         right: 22px;
-        z-index: 100;
+        z-index: 200;
         background: rgba(8, 9, 13, 0.97);
         border: 1px solid var(--gold);
         border-radius: 8px;
-        padding: 11px 20px;
+        padding: 11px 18px;
         font-size: 12px;
         opacity: 0;
         transform: translateY(14px);
@@ -431,34 +528,7 @@
         transform: translateY(0);
       }
 
-      /* ── Today's timeline ── */
-      .timeline-wrap {
-        position: relative;
-      }
-      .tl-now-line {
-        position: absolute;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--red);
-        z-index: 5;
-        pointer-events: none;
-        transition: top 0.5s;
-      }
-      .tl-now-line::before {
-        content: "NOW";
-        position: absolute;
-        left: 0;
-        top: -8px;
-        font-size: 8px;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        color: var(--red);
-        background: var(--bg);
-        padding: 0 4px;
-      }
-
-      /* ── SQL hint ── */
+      /* SQL block */
       .sql-block {
         background: rgba(0, 0, 0, 0.5);
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -472,7 +542,6 @@
         margin-top: 10px;
       }
 
-      /* Empty */
       .empty {
         text-align: center;
         padding: 40px 20px;
@@ -481,11 +550,15 @@
         letter-spacing: 0.1em;
         text-transform: uppercase;
       }
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 14px 0;
+      }
 
-      @media (max-width: 640px) {
+      @media (max-width: 600px) {
         .sched-row {
           flex-wrap: wrap;
-          gap: 8px;
         }
         .sr-btns {
           width: 100%;
@@ -507,18 +580,17 @@
     </div>
 
     <div class="wrap">
-      <!-- Alert -->
       <div id="alert" class="alert"></div>
 
       <!-- Stats -->
       <div class="stats">
         <div class="stat">
-          <div class="stat-val" id="s-upcoming">—</div>
-          <div class="stat-lbl">Upcoming</div>
+          <div class="stat-val" id="s-today">—</div>
+          <div class="stat-lbl">Today Overrides</div>
         </div>
         <div class="stat">
-          <div class="stat-val" id="s-today">—</div>
-          <div class="stat-lbl">Today</div>
+          <div class="stat-val" id="s-upcoming">—</div>
+          <div class="stat-lbl">Upcoming</div>
         </div>
         <div class="stat">
           <div class="stat-val" id="s-played">—</div>
@@ -532,7 +604,9 @@
 
       <!-- Add / Edit form -->
       <div class="card" id="form-card">
-        <div class="card-hd" id="form-hd">Schedule a Video</div>
+        <div class="card-hd">
+          <div class="card-hd-left" id="form-hd">Schedule a Video</div>
+        </div>
         <form id="main-form" autocomplete="off">
           <input type="hidden" id="f-id" />
           <div class="form-grid">
@@ -540,18 +614,10 @@
               <label>Date</label>
               <input type="date" id="f-date" required />
             </div>
-
             <div class="fg">
               <label>Air Time (HH:MM:SS)</label>
-              <input
-                type="text"
-                id="f-time"
-                placeholder="09:30:00"
-                pattern="\d{2}:\d{2}:\d{2}"
-                required
-              />
+              <input type="text" id="f-time" placeholder="09:30:00" required />
             </div>
-
             <div class="fg">
               <label>Title</label>
               <input
@@ -561,17 +627,14 @@
                 required
               />
             </div>
-
             <div class="fg">
               <label>Start Offset (sec)</label>
               <input type="number" id="f-start" value="0" min="0" />
             </div>
-
             <div class="fg">
               <label>Duration (sec)</label>
               <input type="number" id="f-end" value="3600" min="1" required />
             </div>
-
             <div class="fg full">
               <label>YouTube URL</label>
               <input
@@ -595,14 +658,30 @@
 
       <!-- Today's full schedule -->
       <div class="card">
-        <div class="card-hd">Today's Broadcast</div>
-        <div class="timeline-wrap">
-          <div id="tl-now-line" class="tl-now-line" style="display: none"></div>
-          <div id="today-list" class="sched-list"></div>
+        <div class="card-hd">
+          <div class="card-hd-left">
+            Today's Broadcast —
+            <span
+              id="today-date"
+              style="color: rgba(255, 255, 255, 0.4); font-size: 14px"
+            ></span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <button class="btn btn-amber btn-sm" onclick="openCopyPanel()">
+              ⬡ Copy from Date
+            </button>
+            <button
+              class="btn btn-red btn-sm"
+              onclick="openClearModal('today')"
+            >
+              ⊘ Clear Today
+            </button>
+          </div>
         </div>
+        <div id="today-list" class="sched-list"></div>
       </div>
 
-      <!-- Upcoming / History tabs -->
+      <!-- Upcoming / History / Setup -->
       <div class="card">
         <div class="tabs">
           <button class="tab active" onclick="switchTab('upcoming', this)">
@@ -614,25 +693,55 @@
           <button class="tab" onclick="switchTab('setup', this)">Setup</button>
         </div>
 
+        <!-- Upcoming -->
         <div id="tab-upcoming">
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              margin-bottom: 12px;
+            "
+          >
+            <button
+              class="btn btn-red btn-sm"
+              onclick="openClearModal('all-upcoming')"
+            >
+              ⊘ Clear All Upcoming
+            </button>
+          </div>
           <div id="upcoming-list" class="sched-list"></div>
         </div>
 
+        <!-- History -->
         <div id="tab-history" style="display: none">
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              margin-bottom: 12px;
+            "
+          >
+            <button
+              class="btn btn-red btn-sm"
+              onclick="openClearModal('history')"
+            >
+              ⊘ Clear History
+            </button>
+          </div>
           <div id="history-list" class="sched-list"></div>
         </div>
 
+        <!-- Setup -->
         <div id="tab-setup" style="display: none">
           <p
             style="
               font-size: 12px;
               color: var(--muted);
               line-height: 1.9;
-              margin-bottom: 12px;
+              margin-bottom: 10px;
             "
           >
-            Run this SQL in your Supabase dashboard → SQL Editor to create the
-            required table:
+            Run this in Supabase → SQL Editor to create the required table:
           </p>
           <pre class="sql-block">
 CREATE TABLE IF NOT EXISTS tll_schedules (
@@ -641,51 +750,84 @@ CREATE TABLE IF NOT EXISTS tll_schedules (
   youtube_url    text        NOT NULL,
   start_time     integer     DEFAULT 0,
   end_time       integer     NOT NULL,
-  scheduled_date date        NOT NULL,          -- e.g. 2025-04-20
-  streaming_time text        NOT NULL,          -- e.g. 09:30:00
+  scheduled_date date        NOT NULL,
+  streaming_time text        NOT NULL,
   is_played      boolean     DEFAULT false,
   played_at      timestamptz,
   is_active      boolean     DEFAULT true,
-  created_at     timestamptz DEFAULT now()
+  created_at     timestamptz DEFAULT now(),
+  updated_at     timestamptz
 );
 
--- Allow anonymous read/write (disable RLS or add policies)
 ALTER TABLE tll_schedules ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "public read"  ON tll_schedules FOR SELECT USING (true);
-CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK (true);
-        </pre
+CREATE POLICY "allow_all" ON tll_schedules FOR ALL USING (true) WITH CHECK (true);
+      </pre
           >
-          <p
-            style="
-              font-size: 11px;
-              color: var(--muted);
-              margin-top: 14px;
-              line-height: 1.8;
-            "
-          >
-            After creating the table, refresh this page. The player at
-            <b>tlltv.html</b>
-            will automatically pull today's overrides and fall back to the
-            default schedule for any unscheduled time slots.
-          </p>
         </div>
       </div>
     </div>
     <!-- /wrap -->
 
+    <!-- Copy from Date panel (slides in below today's card) -->
+    <div id="copy-panel" class="copy-panel">
+      <div
+        style="
+          font-family: &quot;Bebas Neue&quot;, sans-serif;
+          font-size: 16px;
+          letter-spacing: 0.1em;
+          color: var(--gold);
+          margin-bottom: 12px;
+        "
+      >
+        Copy Schedule from Another Date
+      </div>
+      <div class="copy-row">
+        <label>Source Date</label>
+        <input type="date" id="copy-src-date" />
+        <button class="btn btn-ghost btn-sm" onclick="previewCopy()">
+          Preview
+        </button>
+      </div>
+      <div id="copy-preview"></div>
+      <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap">
+        <input type="date" id="copy-dest-date" title="Copy TO this date" />
+        <button
+          class="btn btn-gold btn-sm"
+          onclick="doCopy()"
+          id="copy-do-btn"
+          disabled
+        >
+          ⬡ Copy to Date
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="closeCopyPanel()">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Confirm modal -->
+    <div class="modal-bg" id="confirm-modal">
+      <div class="modal">
+        <h3 id="modal-title">Confirm</h3>
+        <p id="modal-msg">Are you sure?</p>
+        <div class="modal-btns">
+          <button class="btn btn-red" id="modal-ok">Yes, Delete</button>
+          <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <div id="toast"></div>
 
     <script>
       // ══════════════════════════════════════════════════════════════════════
-      //  CONFIG — same keys as player
+      //  CONFIG
       // ══════════════════════════════════════════════════════════════════════
       const SUPABASE_URL = "https://wadxjpvokisrgyqkqnrc.supabase.co";
       const SUPABASE_KEY = "sb_publishable_e4SNfQTuep0XcqCfHqSyHg_jB1AZn72";
       const TIMEZONE = "Asia/Kolkata";
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      // ── Default schedule (read-only reference) ───────────────────────────
       const DEFAULT_SCHEDULE = [
         {
           streamingTime: "00:00:00",
@@ -881,14 +1023,15 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
         const el = document.getElementById("toast");
         el.textContent = msg;
         el.classList.add("show");
-        setTimeout(() => el.classList.remove("show"), 3000);
+        setTimeout(() => el.classList.remove("show"), 3200);
       }
       function showAlert(msg, type = "ok") {
         const el = document.getElementById("alert");
         el.textContent = msg;
         el.className = "alert alert-" + type;
         el.style.display = "block";
-        setTimeout(() => (el.style.display = "none"), 5000);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => (el.style.display = "none"), 6000);
       }
 
       // ── Clock ─────────────────────────────────────────────────────────────
@@ -903,21 +1046,18 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
         setTimeout(tick, 1000);
       })();
 
-      // ── Supabase: fetch all overrides ─────────────────────────────────────
+      // ── Fetch all ─────────────────────────────────────────────────────────
       async function fetchAll() {
         const { data, error } = await db
           .from("tll_schedules")
           .select("*")
           .order("scheduled_date")
           .order("streaming_time");
+
         if (error) {
           if (error.code === "42P01") {
-            // Table doesn't exist yet — switch to setup tab
-            switchTab("setup", document.querySelector(".tab:last-child"));
-            showAlert(
-              "Table 'tll_schedules' not found. See Setup tab to create it.",
-              "err",
-            );
+            switchTab("setup", document.querySelectorAll(".tab")[2]);
+            showAlert("Table 'tll_schedules' not found. See Setup tab.", "err");
           } else {
             showAlert("DB error: " + error.message, "err");
           }
@@ -926,19 +1066,28 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
         return data || [];
       }
 
-      // ── Render today's merged schedule ────────────────────────────────────
+      // ── Render today's merged view ────────────────────────────────────────
       function renderToday(allRows) {
         const today = todayStr();
         const now = nowSec();
+        document.getElementById("today-date").textContent = today;
+
         const todayOvr = allRows.filter(
           (r) => r.scheduled_date === today && r.is_active,
         );
         const ovrTimes = new Set(todayOvr.map((r) => r.streaming_time));
 
-        // Merge: default (not replaced) + overrides
         const defaults = DEFAULT_SCHEDULE.filter(
           (d) => !ovrTimes.has(d.streamingTime),
-        ).map((d) => ({ ...d, _type: "default" }));
+        ).map((d) => ({
+          streamingTime: d.streamingTime,
+          startTime: d.startTime,
+          endTime: d.endTime,
+          title: d.title,
+          url: d.url,
+          _type: "default",
+        }));
+
         const overrides = todayOvr.map((r) => ({
           streamingTime: r.streaming_time,
           startTime: r.start_time || 0,
@@ -953,8 +1102,7 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
           (a, b) => t2s(a.streamingTime) - t2s(b.streamingTime),
         );
 
-        // Identify current
-        let curIdx = merged.length - 1;
+        let curIdx = 0;
         for (let i = merged.length - 1; i >= 0; i--) {
           if (t2s(merged[i].streamingTime) <= now) {
             curIdx = i;
@@ -963,6 +1111,11 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
         }
 
         const list = document.getElementById("today-list");
+        if (!merged.length) {
+          list.innerHTML = '<div class="empty">No schedule entries</div>';
+          return;
+        }
+
         list.innerHTML = merged
           .map((p, i) => {
             const isNow = i === curIdx;
@@ -974,52 +1127,28 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
             if (isNow) cls += " now";
 
             const tag = isNow
-              ? `<span class="tag tag-live">ON AIR</span>`
+              ? `<span class="tag tag-air">On Air</span>`
               : p._type === "override"
                 ? `<span class="tag tag-over">Override</span>`
                 : p._type === "played"
                   ? `<span class="tag tag-played">Played</span>`
                   : `<span class="tag tag-def">Default</span>`;
 
-            const dur = p.endTime - p.startTime;
-            const editBtn =
-              p._type === "override" && !isPast
+            const editDel =
+              p._type === "override" || p._type === "played"
                 ? `<button class="btn btn-ghost btn-xs" onclick='editRow(${JSON.stringify({ id: p._id, title: p.title, youtube_url: p.url, start_time: p.startTime, end_time: p.endTime, scheduled_date: today, streaming_time: p.streamingTime })})'>Edit</button>
-           <button class="btn btn-red btn-xs" onclick="delRow('${p._id}')">✕</button>`
+         <button class="btn btn-red btn-xs" onclick="delRow('${p._id}')">✕</button>`
                 : "";
 
-            return `<div class="${cls}" id="tdr-${i}">
-        <div class="sr-time ${p._type === "default" ? "default" : ""}">${p.streamingTime}</div>
-        <div class="sr-info">
-          <div class="sr-title">${esc(p.title)}</div>
-          <div class="sr-url">${esc(p.url)}</div>
-        </div>
-        ${tag}
-        <div class="sr-dur">${fmtDur(dur)}</div>
-        <div class="sr-btns">${editBtn}</div>
-      </div>`;
+            return `<div class="${cls}">
+      <div class="sr-time ${p._type === "default" ? "def" : ""}">${p.streamingTime}</div>
+      <div class="sr-info"><div class="sr-title">${esc(p.title)}</div><div class="sr-url">${esc(p.url)}</div></div>
+      ${tag}
+      <div class="sr-dur">${fmtDur(p.endTime - p.startTime)}</div>
+      <div class="sr-btns">${editDel}</div>
+    </div>`;
           })
           .join("");
-
-        // Position NOW line
-        if (merged.length) {
-          const rowEls = list.querySelectorAll(".sched-row");
-          const curEl = rowEls[curIdx];
-          if (curEl) {
-            const nl = document.getElementById("tl-now-line");
-            nl.style.display = "block";
-            // Position after top of current row + fractional progress
-            const prog = PLAYLIST_PROGRESS(merged[curIdx], now);
-            nl.style.top = curEl.offsetTop + curEl.offsetHeight * prog + "px";
-          }
-        }
-      }
-
-      function PLAYLIST_PROGRESS(prog, now) {
-        const start = t2s(prog.streamingTime);
-        const dur = prog.endTime - prog.startTime;
-        const el = now >= start ? now - start : 0;
-        return Math.min(el / dur, 1);
       }
 
       // ── Render upcoming overrides ─────────────────────────────────────────
@@ -1033,83 +1162,61 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
             (r.scheduled_date > today ||
               (r.scheduled_date === today && t2s(r.streaming_time) > now)),
         );
-
         document.getElementById("s-upcoming").textContent = rows.length;
 
         const list = document.getElementById("upcoming-list");
         if (!rows.length) {
-          list.innerHTML =
-            '<div class="empty">No upcoming overrides scheduled</div>';
+          list.innerHTML = '<div class="empty">No upcoming overrides</div>';
           return;
         }
         list.innerHTML = rows
           .map(
             (r) => `
-      <div class="sched-row override">
-        <div class="sr-time">${r.scheduled_date} ${r.streaming_time}</div>
-        <div class="sr-info">
-          <div class="sr-title">${esc(r.title)}</div>
-          <div class="sr-url">${esc(r.youtube_url)}</div>
-        </div>
-        <span class="tag tag-on">Active</span>
-        <div class="sr-dur">${fmtDur(r.end_time - r.start_time)}</div>
-        <div class="sr-btns">
-          <button class="btn btn-ghost btn-xs" onclick='editRow(${JSON.stringify(r)})'>Edit</button>
-          <button class="btn btn-red btn-xs" onclick="delRow('${r.id}')">✕</button>
-        </div>
+    <div class="sched-row override">
+      <div class="sr-time">${r.scheduled_date} ${r.streaming_time}</div>
+      <div class="sr-info"><div class="sr-title">${esc(r.title)}</div><div class="sr-url">${esc(r.youtube_url)}</div></div>
+      <span class="tag tag-on">Active</span>
+      <div class="sr-dur">${fmtDur(r.end_time - r.start_time)}</div>
+      <div class="sr-btns">
+        <button class="btn btn-ghost btn-xs" onclick='editRow(${JSON.stringify(r)})'>Edit</button>
+        <button class="btn btn-red btn-xs" onclick="delRow('${r.id}')">✕</button>
       </div>
-    `,
+    </div>
+  `,
           )
           .join("");
       }
 
       // ── Render history ────────────────────────────────────────────────────
       function renderHistory(allRows) {
-        const today = todayStr();
-        const now = nowSec();
-        const rows = allRows
-          .filter(
-            (r) =>
-              r.is_played ||
-              !r.is_active ||
-              r.scheduled_date < today ||
-              (r.scheduled_date === today &&
-                t2s(r.streaming_time) <= now &&
-                r.is_played),
-          )
-          .slice(-30)
-          .reverse(); // last 30
-
-        document.getElementById("s-played").textContent = rows.filter(
-          (r) => r.is_played,
-        ).length;
+        const played = allRows.filter((r) => r.is_played || !r.is_active);
+        document.getElementById("s-played").textContent = played.length;
 
         const list = document.getElementById("history-list");
-        if (!rows.length) {
+        if (!played.length) {
           list.innerHTML = '<div class="empty">No history yet</div>';
           return;
         }
-        list.innerHTML = rows
+        list.innerHTML = played
+          .slice()
+          .reverse()
+          .slice(0, 50)
           .map(
             (r) => `
-      <div class="sched-row played">
-        <div class="sr-time">${r.scheduled_date} ${r.streaming_time}</div>
-        <div class="sr-info">
-          <div class="sr-title">${esc(r.title)}</div>
-          <div class="sr-url">${esc(r.youtube_url)}</div>
-        </div>
-        <span class="tag tag-played">${r.is_played ? "Played" : "Skipped"}</span>
-        <div class="sr-dur">${fmtDur(r.end_time - r.start_time)}</div>
-        <div class="sr-btns">
-          <button class="btn btn-red btn-xs" onclick="delRow('${r.id}')">✕</button>
-        </div>
+    <div class="sched-row played">
+      <div class="sr-time">${r.scheduled_date} ${r.streaming_time}</div>
+      <div class="sr-info"><div class="sr-title">${esc(r.title)}</div><div class="sr-url">${esc(r.youtube_url)}</div></div>
+      <span class="tag tag-played">${r.is_played ? "Played" : "Disabled"}</span>
+      <div class="sr-dur">${fmtDur(r.end_time - r.start_time)}</div>
+      <div class="sr-btns">
+        <button class="btn btn-red btn-xs" onclick="delRow('${r.id}')">✕</button>
       </div>
-    `,
+    </div>
+  `,
           )
           .join("");
       }
 
-      // ── Stats ─────────────────────────────────────────────────────────────
       function renderStats(allRows) {
         const today = todayStr();
         document.getElementById("s-today").textContent = allRows.filter(
@@ -1117,17 +1224,13 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
         ).length;
       }
 
-      // ── Main render ───────────────────────────────────────────────────────
-      function renderAll(allRows) {
-        renderStats(allRows);
-        renderToday(allRows);
-        renderUpcoming(allRows);
-        renderHistory(allRows);
-      }
-
+      let _allRows = [];
       async function refresh() {
-        const rows = await fetchAll();
-        renderAll(rows);
+        _allRows = await fetchAll();
+        renderStats(_allRows);
+        renderToday(_allRows);
+        renderUpcoming(_allRows);
+        renderHistory(_allRows);
       }
 
       // ── CRUD ──────────────────────────────────────────────────────────────
@@ -1135,40 +1238,44 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
         .getElementById("main-form")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-          const id = document.getElementById("f-id").value;
+          const id = document.getElementById("f-id").value.trim();
+
+          const timeVal = document.getElementById("f-time").value.trim();
+          if (!/^\d{2}:\d{2}:\d{2}$/.test(timeVal)) {
+            showAlert("Air Time must be HH:MM:SS — e.g. 09:30:00", "err");
+            return;
+          }
+          const endSec = parseInt(document.getElementById("f-end").value);
+          const startSec =
+            parseInt(document.getElementById("f-start").value) || 0;
+          if (endSec <= 0) {
+            showAlert("Duration must be greater than 0.", "err");
+            return;
+          }
+
           const payload = {
             title: document.getElementById("f-title").value.trim(),
             youtube_url: document.getElementById("f-url").value.trim(),
-            start_time: parseInt(document.getElementById("f-start").value) || 0,
-            end_time: parseInt(document.getElementById("f-end").value),
+            start_time: startSec,
+            end_time: endSec,
             scheduled_date: document.getElementById("f-date").value,
-            streaming_time: document.getElementById("f-time").value.trim(),
+            streaming_time: timeVal,
             is_active: true,
             is_played: false,
+            updated_at: new Date().toISOString(),
           };
 
-          // Validate time format
-          if (!/^\d{2}:\d{2}:\d{2}$/.test(payload.streaming_time)) {
-            showAlert("Time must be HH:MM:SS (e.g. 09:30:00)", "err");
-            return;
-          }
-          if (!payload.scheduled_date) {
-            showAlert("Please pick a date.", "err");
-            return;
-          }
-          if (payload.end_time <= payload.start_time) {
-            showAlert("Duration must be greater than start offset.", "err");
-            return;
-          }
+          const btn = document.getElementById("f-submit");
+          btn.disabled = true;
 
           try {
             if (id) {
               const { error } = await db
                 .from("tll_schedules")
-                .update({ ...payload, updated_at: new Date().toISOString() })
+                .update(payload)
                 .eq("id", id);
               if (error) throw error;
-              toast("✓ Schedule updated");
+              toast("✓ Updated: " + payload.title);
             } else {
               const { error } = await db
                 .from("tll_schedules")
@@ -1177,37 +1284,63 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
               toast("✓ Scheduled: " + payload.title);
             }
             resetForm();
-            refresh();
+            await refresh();
           } catch (err) {
             showAlert("Save failed: " + err.message, "err");
+          } finally {
+            btn.disabled = false;
           }
         });
 
+      // editRow: works with both DB rows (has .id) and mapped rows
       function editRow(r) {
-        document.getElementById("f-id").value = r.id;
-        document.getElementById("f-date").value = r.scheduled_date;
-        document.getElementById("f-time").value = r.streaming_time;
-        document.getElementById("f-title").value = r.title;
-        document.getElementById("f-url").value = r.youtube_url;
-        document.getElementById("f-start").value = r.start_time;
-        document.getElementById("f-end").value = r.end_time;
+        // Support both field naming conventions
+        const id = r.id;
+        const date = r.scheduled_date;
+        const time = r.streaming_time;
+        const title = r.title;
+        const url = r.youtube_url || r.url;
+        const start = r.start_time != null ? r.start_time : 0;
+        const end = r.end_time;
+
+        document.getElementById("f-id").value = id || "";
+        document.getElementById("f-date").value = date || todayStr();
+        document.getElementById("f-time").value = time || "";
+        document.getElementById("f-title").value = title || "";
+        document.getElementById("f-url").value = url || "";
+        document.getElementById("f-start").value = start;
+        document.getElementById("f-end").value = end || 3600;
+
         document.getElementById("form-hd").textContent = "Edit Schedule";
         document.getElementById("f-submit").textContent = "✓ Save Changes";
         document
           .getElementById("form-card")
           .scrollIntoView({ behavior: "smooth" });
-        document.getElementById("f-title").focus();
+        setTimeout(() => document.getElementById("f-title").focus(), 400);
       }
 
+      // ── Delete single row ─────────────────────────────────────────────────
       async function delRow(id) {
-        if (!confirm("Remove this schedule entry?")) return;
-        const { error } = await db.from("tll_schedules").delete().eq("id", id);
-        if (error) {
-          showAlert("Delete failed: " + error.message, "err");
+        if (!id) {
+          showAlert("Cannot delete: missing ID.", "err");
           return;
         }
-        toast("✓ Removed");
-        refresh();
+        openConfirm(
+          "Delete Entry",
+          "Remove this schedule entry? This cannot be undone.",
+          async () => {
+            const { error } = await db
+              .from("tll_schedules")
+              .delete()
+              .eq("id", id);
+            if (error) {
+              showAlert("Delete failed: " + error.message, "err");
+            } else {
+              toast("✓ Deleted");
+              await refresh();
+            }
+          },
+        );
       }
 
       function resetForm() {
@@ -1218,6 +1351,217 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
         document.getElementById("f-date").value = todayStr();
         document.getElementById("form-hd").textContent = "Schedule a Video";
         document.getElementById("f-submit").textContent = "＋ Add to Schedule";
+      }
+
+      // ── Clear operations ──────────────────────────────────────────────────
+      let _clearAction = null;
+
+      function openClearModal(scope) {
+        const today = todayStr();
+        if (scope === "today") {
+          _clearAction = async () => {
+            const rows = _allRows.filter((r) => r.scheduled_date === today);
+            if (!rows.length) {
+              toast("Nothing to clear for today.");
+              return;
+            }
+            const ids = rows.map((r) => r.id);
+            const { error } = await db
+              .from("tll_schedules")
+              .delete()
+              .in("id", ids);
+            if (error) {
+              showAlert("Clear failed: " + error.message, "err");
+              return;
+            }
+            toast(`✓ Cleared ${ids.length} entries for today`);
+            await refresh();
+          };
+          openConfirm(
+            "Clear Today",
+            `Delete all ${_allRows.filter((r) => r.scheduled_date === today).length} override entries for ${today}?`,
+            _clearAction,
+          );
+        } else if (scope === "all-upcoming") {
+          const now = nowSec();
+          const rows = _allRows.filter(
+            (r) =>
+              r.is_active &&
+              !r.is_played &&
+              (r.scheduled_date > today ||
+                (r.scheduled_date === today && t2s(r.streaming_time) > now)),
+          );
+          _clearAction = async () => {
+            if (!rows.length) {
+              toast("No upcoming entries.");
+              return;
+            }
+            const ids = rows.map((r) => r.id);
+            const { error } = await db
+              .from("tll_schedules")
+              .delete()
+              .in("id", ids);
+            if (error) {
+              showAlert("Clear failed: " + error.message, "err");
+              return;
+            }
+            toast(`✓ Cleared ${ids.length} upcoming entries`);
+            await refresh();
+          };
+          openConfirm(
+            "Clear All Upcoming",
+            `Delete all ${rows.length} upcoming override entries?`,
+            _clearAction,
+          );
+        } else if (scope === "history") {
+          const rows = _allRows.filter((r) => r.is_played || !r.is_active);
+          _clearAction = async () => {
+            if (!rows.length) {
+              toast("No history to clear.");
+              return;
+            }
+            const ids = rows.map((r) => r.id);
+            const { error } = await db
+              .from("tll_schedules")
+              .delete()
+              .in("id", ids);
+            if (error) {
+              showAlert("Clear failed: " + error.message, "err");
+              return;
+            }
+            toast(`✓ Cleared ${ids.length} history entries`);
+            await refresh();
+          };
+          openConfirm(
+            "Clear History",
+            `Delete all ${rows.length} played/disabled entries?`,
+            _clearAction,
+          );
+        }
+      }
+
+      // ── Confirm modal ─────────────────────────────────────────────────────
+      let _confirmCb = null;
+      function openConfirm(title, msg, cb) {
+        _confirmCb = cb;
+        document.getElementById("modal-title").textContent = title;
+        document.getElementById("modal-msg").textContent = msg;
+        document.getElementById("confirm-modal").classList.add("open");
+      }
+      function closeModal() {
+        _confirmCb = null;
+        document.getElementById("confirm-modal").classList.remove("open");
+      }
+      document
+        .getElementById("modal-ok")
+        .addEventListener("click", async () => {
+          closeModal();
+          if (_confirmCb) await _confirmCb();
+          _confirmCb = null;
+        });
+      document
+        .getElementById("confirm-modal")
+        .addEventListener("click", (e) => {
+          if (e.target === document.getElementById("confirm-modal"))
+            closeModal();
+        });
+
+      // ── Copy from date ─────────────────────────────────────────────────────
+      let _copyRows = [];
+
+      function openCopyPanel() {
+        const panel = document.getElementById("copy-panel");
+        panel.classList.add("open");
+        // Default source: yesterday
+        const d = nowIST();
+        d.setDate(d.getDate() - 1);
+        const yest =
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0");
+        document.getElementById("copy-src-date").value = yest;
+        document.getElementById("copy-dest-date").value = todayStr();
+        document.getElementById("copy-preview").textContent = "";
+        document.getElementById("copy-do-btn").disabled = true;
+        _copyRows = [];
+        panel.scrollIntoView({ behavior: "smooth" });
+      }
+
+      function closeCopyPanel() {
+        document.getElementById("copy-panel").classList.remove("open");
+        _copyRows = [];
+      }
+
+      async function previewCopy() {
+        const src = document.getElementById("copy-src-date").value;
+        if (!src) {
+          showAlert("Pick a source date.", "err");
+          return;
+        }
+
+        const { data, error } = await db
+          .from("tll_schedules")
+          .select("*")
+          .eq("scheduled_date", src)
+          .eq("is_active", true)
+          .order("streaming_time");
+
+        if (error) {
+          showAlert("Fetch failed: " + error.message, "err");
+          return;
+        }
+        _copyRows = data || [];
+
+        const prev = document.getElementById("copy-preview");
+        if (!_copyRows.length) {
+          prev.textContent = `No override entries found for ${src}.`;
+          document.getElementById("copy-do-btn").disabled = true;
+        } else {
+          prev.textContent =
+            `Found ${_copyRows.length} entries: ` +
+            _copyRows.map((r) => r.streaming_time).join(", ");
+          document.getElementById("copy-do-btn").disabled = false;
+        }
+      }
+
+      async function doCopy() {
+        const dest = document.getElementById("copy-dest-date").value;
+        if (!dest) {
+          showAlert("Pick a destination date.", "err");
+          return;
+        }
+        if (!_copyRows.length) {
+          showAlert("Nothing to copy.", "err");
+          return;
+        }
+
+        const btn = document.getElementById("copy-do-btn");
+        btn.disabled = true;
+
+        const inserts = _copyRows.map((r) => ({
+          title: r.title,
+          youtube_url: r.youtube_url,
+          start_time: r.start_time,
+          end_time: r.end_time,
+          scheduled_date: dest,
+          streaming_time: r.streaming_time,
+          is_active: true,
+          is_played: false,
+          created_at: new Date().toISOString(),
+        }));
+
+        const { error } = await db.from("tll_schedules").insert(inserts);
+        if (error) {
+          showAlert("Copy failed: " + error.message, "err");
+          btn.disabled = false;
+          return;
+        }
+
+        toast(`✓ Copied ${inserts.length} entries to ${dest}`);
+        closeCopyPanel();
+        await refresh();
       }
 
       // ── Tabs ──────────────────────────────────────────────────────────────
@@ -1233,12 +1577,17 @@ CREATE POLICY "public write" ON tll_schedules FOR ALL    USING (true) WITH CHECK
       }
 
       // ── Init ──────────────────────────────────────────────────────────────
-      resetForm(); // set default date to today
+      resetForm();
       refresh();
-      // Refresh every 30s to catch new plays
       setInterval(refresh, 30000);
-      // Reposition NOW line every minute
-      setInterval(async () => renderAll(await fetchAll()), 60000);
+
+      // Insert copy panel into DOM after today's card
+      document
+        .querySelector(".wrap")
+        .insertBefore(
+          document.getElementById("copy-panel"),
+          document.querySelector(".wrap").children[3],
+        );
     </script>
   </body>
 </html>
