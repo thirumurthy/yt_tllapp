@@ -617,8 +617,6 @@
       let hasUnmuted = false;
 
       // ── CRITICAL: switching guard prevents double-fires ──────────────────
-      // Both the scheduler timer AND onStateChange(ENDED) can call playProgram.
-      // This flag ensures only ONE transition happens at a time.
       let isSwitching = false;
 
       // ── Utilities ────────────────────────────────────────────────────────
@@ -696,16 +694,22 @@
       }
 
       // ── Build merged playlist ────────────────────────────────────────────
-      // Override entries replace any default entry at the exact same time slot.
-      // Other default entries fill the rest.
+      // FIX: If Supabase has ANY entries for today, use them exclusively.
+      // They are designed to cover the full broadcast day, so we don't
+      // mix them with the default schedule (which had mismatched time keys).
       function buildPlaylist(overrides) {
-        const ovrTimes = new Set(overrides.map((o) => o.streamingTime));
-        const defaults = DEFAULT_SCHEDULE.filter(
-          (d) => !ovrTimes.has(d.streamingTime),
-        ).map((d) => ({ ...d, isOverride: false, overrideId: null }));
-        return [...defaults, ...overrides].sort(
-          (a, b) => t2s(a.streamingTime) - t2s(b.streamingTime),
-        );
+        if (overrides.length > 0) {
+          // Use only Supabase overrides — they cover the full day
+          return overrides.sort(
+            (a, b) => t2s(a.streamingTime) - t2s(b.streamingTime),
+          );
+        }
+        // No overrides for today — fall back to the default schedule
+        return DEFAULT_SCHEDULE.map((d) => ({
+          ...d,
+          isOverride: false,
+          overrideId: null,
+        }));
       }
 
       // ── Clock ────────────────────────────────────────────────────────────
@@ -787,7 +791,6 @@
         }
 
         // Release switching guard AFTER a short delay
-        // This prevents rapid re-triggers from ENDED events during load
         setTimeout(() => {
           isSwitching = false;
         }, 2000);
@@ -825,9 +828,6 @@
           ms = Math.max((end - now) * 1000, 5000);
         }
 
-        // Extra 1.5s buffer so the timer fires slightly AFTER the slot begins,
-        // avoiding the race condition where the timer fires just before midnight
-        // and ENDED fires at the same instant
         nextTimer = setTimeout(() => playProgram(nextIdx, 0), ms + 1500);
       }
 
@@ -902,9 +902,8 @@
       }
 
       function onStateChange(e) {
-        // ENDED (0) — only trigger if not already switching and the timer is far away
+        // ENDED (0) — only trigger if not already switching
         if (e.data === YT.PlayerState.ENDED && !isSwitching) {
-          // Cancel the scheduled timer — we'll handle the transition now
           if (nextTimer) {
             clearTimeout(nextTimer);
             nextTimer = null;
