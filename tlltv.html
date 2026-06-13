@@ -609,14 +609,15 @@
       let PLAYLIST = [];
       let ytPlayer = null;
       let playerReady = false;
-      let playlistReady = false; // true once Supabase fetch + build is done
+      let playlistReady = false;
       let currentIdx = -1;
       let nextTimer = null;
       let progTimer = null;
       let isMuted = true;
       let hasUnmuted = false;
-      let pendingSeek = null; // seek position to force-apply on first PLAYING event
-      let seekApplied = false; // guard: only seek once per loadVideoById call
+      let targetSeek = null; // absolute YT seconds we must land on
+      let seekRetryTimer = null; // interval handle for seek polling
+      let seekConfirmed = false; // true once getCurrentTime() is within tolerance
 
       // ── CRITICAL: switching guard prevents double-fires ──────────────────
       let isSwitching = false;
@@ -740,13 +741,22 @@
         progTimer = setInterval(step, 1000);
       }
 
+      // ── Stop any in-flight seek retry loop ───────────────────────────────
+      function stopSeekRetry() {
+        if (seekRetryTimer) {
+          clearInterval(seekRetryTimer);
+          seekRetryTimer = null;
+        }
+        seekConfirmed = false;
+      }
+
       // ── Core: play a program ─────────────────────────────────────────────
       function playProgram(idx, offset) {
-        // ── GUARD: block concurrent calls ──
         if (isSwitching) return;
         isSwitching = true;
 
-        // Cancel any pending timer so it can't fire again for this same slot
+        stopSeekRetry();
+
         if (nextTimer) {
           clearTimeout(nextTimer);
           nextTimer = null;
@@ -767,9 +777,14 @@
           return;
         }
 
-        const seekTo = prog.startTime + Math.floor(offset);
+        // The absolute second inside the YouTube video we need to land on
+        targetSeek = prog.startTime + Math.floor(offset);
 
-        // Update title
+        console.log(
+          `[TLL] playProgram idx=${idx} title="${prog.title}" startTime=${prog.startTime} offset=${Math.floor(offset)} → seekTo=${targetSeek}`,
+        );
+
+        // Update title strip
         const titleEl = document.getElementById("prog-title");
         titleEl.innerHTML = prog.isOverride
           ? `<span class="override-dot"></span>${prog.title}`
@@ -784,27 +799,68 @@
           setTimeout(() => fl.classList.remove("show"), 380);
         }
 
-        // Store the target seek position. We set it BEFORE calling loadVideoById
-        // so onStateChange(PLAYING) can pick it up immediately.
-        // startSeconds in loadVideoById is unreliable when users are logged into
-        // YouTube — it gets overridden by their watch history. The reliable fix is
-        // to call seekTo() explicitly the moment the player fires its first
-        // PLAYING event after load.
-        pendingSeek = seekTo;
-        seekApplied = false;
-
         if (playerReady) {
-          ytPlayer.loadVideoById({ videoId: vid, startSeconds: seekTo });
+          // Strategy:
+          // 1. loadVideoById with startSeconds as a hint (may be ignored by YT for logged-in users)
+          // 2. onStateChange will catch BUFFERING and PLAYING and call startSeekRetry()
+          // 3. startSeekRetry() hammers seekTo() every 500ms until getCurrentTime() confirms
+          ytPlayer.loadVideoById({ videoId: vid, startSeconds: targetSeek });
           if (isMuted) ytPlayer.mute();
           else ytPlayer.unMute();
         }
 
-        // Release switching guard AFTER a short delay
         setTimeout(() => {
           isSwitching = false;
         }, 2000);
-
         scheduleNext(idx);
+      }
+
+      // ── Hammer seekTo until getCurrentTime confirms we landed ─────────────
+      function startSeekRetry() {
+        stopSeekRetry(); // clear any previous loop
+        if (targetSeek === null) return;
+
+        const target = targetSeek;
+        let attempts = 0;
+        const MAX = 40; // 40 × 500ms = 20 seconds max
+
+        console.log(`[TLL] startSeekRetry target=${target}`);
+
+        seekRetryTimer = setInterval(() => {
+          if (seekConfirmed || targetSeek !== target) {
+            // Either confirmed or a new video loaded — stop
+            stopSeekRetry();
+            return;
+          }
+
+          attempts++;
+          if (attempts > MAX) {
+            console.warn(`[TLL] seekRetry gave up after ${MAX} attempts`);
+            stopSeekRetry();
+            return;
+          }
+
+          const cur = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
+          const state = ytPlayer.getPlayerState
+            ? ytPlayer.getPlayerState()
+            : -1;
+          const diff = Math.abs(cur - target);
+
+          console.log(
+            `[TLL] seekRetry attempt=${attempts} state=${state} cur=${cur.toFixed(1)} target=${target} diff=${diff.toFixed(1)}`,
+          );
+
+          if (diff <= 8) {
+            // Close enough — seek landed
+            seekConfirmed = true;
+            console.log(`[TLL] seekRetry ✓ confirmed at ${cur.toFixed(1)}`);
+            stopSeekRetry();
+            return;
+          }
+
+          // Not there yet — try again
+          ytPlayer.seekTo(target, true);
+        }, 500);
       }
 
       // ── Schedule when to switch to the next slot ─────────────────────────
@@ -914,43 +970,46 @@
       }
 
       function onStateChange(e) {
-        // PLAYING (1) — force seek to correct live position on first play after load.
-        // YouTube ignores startSeconds for logged-in users (resumes watch history).
-        // seekTo() also fails silently if called before the video has buffered
-        // enough to jump that far. So we poll until getCurrentTime() confirms
-        // the seek actually landed within 5 seconds of target.
-        if (e.data === YT.PlayerState.PLAYING) {
-          if (pendingSeek !== null && !seekApplied) {
-            seekApplied = true;
-            forceSeek(pendingSeek, 0);
+        const STATE_NAMES = {
+          "-1": "UNSTARTED",
+          0: "ENDED",
+          1: "PLAYING",
+          2: "PAUSED",
+          3: "BUFFERING",
+          5: "CUED",
+        };
+        console.log(
+          `[TLL] onStateChange state=${e.data} (${STATE_NAMES[e.data] || "?"}) targetSeek=${targetSeek} seekConfirmed=${seekConfirmed}`,
+        );
+
+        // BUFFERING (3) or PLAYING (1) — kick off seek retry loop.
+        // We start on BUFFERING too because for large seeks the player buffers
+        // at the wrong position first; hammering seekTo() during buffering is
+        // exactly what makes it jump to the right spot.
+        if (
+          e.data === YT.PlayerState.BUFFERING ||
+          e.data === YT.PlayerState.PLAYING
+        ) {
+          if (targetSeek !== null && !seekConfirmed) {
+            startSeekRetry();
           }
         }
 
-        // ENDED (0) — only trigger if not already switching
+        // PLAYING (1) — after seek is confirmed, stop retrying
+        if (e.data === YT.PlayerState.PLAYING && seekConfirmed) {
+          stopSeekRetry();
+        }
+
+        // ENDED (0) — advance to next slot
         if (e.data === YT.PlayerState.ENDED && !isSwitching) {
           if (nextTimer) {
             clearTimeout(nextTimer);
             nextTimer = null;
           }
-          pendingSeek = null;
+          targetSeek = null;
+          stopSeekRetry();
           playProgram((currentIdx + 1) % PLAYLIST.length, 0);
         }
-      }
-
-      // Keeps retrying seekTo() every 300ms until the player's current time
-      // is within 5 seconds of the target, or we've tried 20 times (~6s).
-      function forceSeek(target, attempt) {
-        if (attempt > 20) return; // give up after ~6 seconds
-        ytPlayer.seekTo(target, true);
-        setTimeout(() => {
-          const cur = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
-          const diff = Math.abs(cur - target);
-          if (diff > 5) {
-            // Seek didn't land yet — retry
-            forceSeek(target, attempt + 1);
-          }
-          // else: close enough, we're done
-        }, 300);
       }
 
       function onError(e) {
