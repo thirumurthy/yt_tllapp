@@ -915,12 +915,14 @@
 
       function onStateChange(e) {
         // PLAYING (1) — force seek to correct live position on first play after load.
-        // This overrides YouTube's "resume from watch history" behaviour which
-        // silently ignores startSeconds in loadVideoById for logged-in users.
+        // YouTube ignores startSeconds for logged-in users (resumes watch history).
+        // seekTo() also fails silently if called before the video has buffered
+        // enough to jump that far. So we poll until getCurrentTime() confirms
+        // the seek actually landed within 5 seconds of target.
         if (e.data === YT.PlayerState.PLAYING) {
           if (pendingSeek !== null && !seekApplied) {
             seekApplied = true;
-            ytPlayer.seekTo(pendingSeek, true);
+            forceSeek(pendingSeek, 0);
           }
         }
 
@@ -930,8 +932,25 @@
             clearTimeout(nextTimer);
             nextTimer = null;
           }
+          pendingSeek = null;
           playProgram((currentIdx + 1) % PLAYLIST.length, 0);
         }
+      }
+
+      // Keeps retrying seekTo() every 300ms until the player's current time
+      // is within 5 seconds of the target, or we've tried 20 times (~6s).
+      function forceSeek(target, attempt) {
+        if (attempt > 20) return; // give up after ~6 seconds
+        ytPlayer.seekTo(target, true);
+        setTimeout(() => {
+          const cur = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
+          const diff = Math.abs(cur - target);
+          if (diff > 5) {
+            // Seek didn't land yet — retry
+            forceSeek(target, attempt + 1);
+          }
+          // else: close enough, we're done
+        }, 300);
       }
 
       function onError(e) {
