@@ -609,6 +609,7 @@
       let PLAYLIST = [];
       let ytPlayer = null;
       let playerReady = false;
+      let playlistReady = false; // NEW: true once Supabase fetch + build is done
       let currentIdx = -1;
       let nextTimer = null;
       let progTimer = null;
@@ -847,14 +848,18 @@
         const prog = PLAYLIST[idx];
         const starts = t2s(prog.streamingTime);
         const dur = prog.endTime - prog.startTime;
-        const offset = now >= starts ? now - starts : now + 86400 - starts;
 
-        if (offset >= dur) {
+        // How many seconds have elapsed since this slot started?
+        const elapsed = now >= starts ? now - starts : now + 86400 - starts;
+
+        if (elapsed >= dur) {
           // This slot has already finished; play next
           const next = (idx + 1) % PLAYLIST.length;
           playProgram(next, 0);
         } else {
-          playProgram(idx, offset);
+          // Pass elapsed seconds — playProgram adds prog.startTime to get the
+          // correct absolute seek position inside the YouTube video
+          playProgram(idx, elapsed);
         }
       }
 
@@ -888,12 +893,12 @@
         playerReady = true;
         e.target.mute();
 
-        if (pendingLoad) {
-          e.target.loadVideoById(pendingLoad);
-          pendingLoad = null;
-        } else {
+        // If playlist is already built, play immediately.
+        // Otherwise let init() call findAndPlay() once the playlist is ready.
+        if (playlistReady) {
           findAndPlay();
         }
+        // pendingLoad is no longer used — init() drives playback start
 
         document.getElementById("mute-cover").style.display = "flex";
         setTimeout(() => {
@@ -957,6 +962,7 @@
       (async function init() {
         const overrides = await fetchOverrides();
         PLAYLIST = buildPlaylist(overrides);
+        playlistReady = true;
 
         // Pre-fill title immediately
         const now = nowSec();
@@ -967,6 +973,12 @@
         const cur = PLAYLIST[Math.max(i, 0)];
         document.getElementById("prog-title").textContent = cur.title;
         document.getElementById("prog-strip").classList.add("on");
+
+        // If the YT player finished loading before the playlist was ready,
+        // kick off playback now. Otherwise onReady() will handle it.
+        if (playerReady) {
+          findAndPlay();
+        }
       })();
     </script>
 
