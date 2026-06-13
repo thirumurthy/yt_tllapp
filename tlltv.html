@@ -609,13 +609,14 @@
       let PLAYLIST = [];
       let ytPlayer = null;
       let playerReady = false;
-      let playlistReady = false; // NEW: true once Supabase fetch + build is done
+      let playlistReady = false; // true once Supabase fetch + build is done
       let currentIdx = -1;
       let nextTimer = null;
       let progTimer = null;
       let isMuted = true;
-      let pendingLoad = null;
       let hasUnmuted = false;
+      let pendingSeek = null; // seek position to force-apply on first PLAYING event
+      let seekApplied = false; // guard: only seek once per loadVideoById call
 
       // ── CRITICAL: switching guard prevents double-fires ──────────────────
       let isSwitching = false;
@@ -783,12 +784,19 @@
           setTimeout(() => fl.classList.remove("show"), 380);
         }
 
+        // Store the target seek position. We set it BEFORE calling loadVideoById
+        // so onStateChange(PLAYING) can pick it up immediately.
+        // startSeconds in loadVideoById is unreliable when users are logged into
+        // YouTube — it gets overridden by their watch history. The reliable fix is
+        // to call seekTo() explicitly the moment the player fires its first
+        // PLAYING event after load.
+        pendingSeek = seekTo;
+        seekApplied = false;
+
         if (playerReady) {
           ytPlayer.loadVideoById({ videoId: vid, startSeconds: seekTo });
           if (isMuted) ytPlayer.mute();
           else ytPlayer.unMute();
-        } else {
-          pendingLoad = { videoId: vid, startSeconds: seekTo };
         }
 
         // Release switching guard AFTER a short delay
@@ -893,12 +901,11 @@
         playerReady = true;
         e.target.mute();
 
-        // If playlist is already built, play immediately.
-        // Otherwise let init() call findAndPlay() once the playlist is ready.
+        // If playlist is already built, start playing immediately.
+        // Otherwise init() will call findAndPlay() once the playlist is ready.
         if (playlistReady) {
           findAndPlay();
         }
-        // pendingLoad is no longer used — init() drives playback start
 
         document.getElementById("mute-cover").style.display = "flex";
         setTimeout(() => {
@@ -907,6 +914,16 @@
       }
 
       function onStateChange(e) {
+        // PLAYING (1) — force seek to correct live position on first play after load.
+        // This overrides YouTube's "resume from watch history" behaviour which
+        // silently ignores startSeconds in loadVideoById for logged-in users.
+        if (e.data === YT.PlayerState.PLAYING) {
+          if (pendingSeek !== null && !seekApplied) {
+            seekApplied = true;
+            ytPlayer.seekTo(pendingSeek, true);
+          }
+        }
+
         // ENDED (0) — only trigger if not already switching
         if (e.data === YT.PlayerState.ENDED && !isSwitching) {
           if (nextTimer) {
