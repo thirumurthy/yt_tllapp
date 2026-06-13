@@ -777,11 +777,16 @@
           return;
         }
 
-        // The absolute second inside the YouTube video we need to land on
-        targetSeek = prog.startTime + Math.floor(offset);
+        // For DEFAULT schedule: startTime is a genuine video seek offset (e.g. skip 30s intro)
+        // For SUPABASE entries: startTime equals wall-clock seconds from midnight
+        //   (same value as streaming_time in seconds) — NOT a video position.
+        //   These movies always start from 0 in the YouTube video.
+        // We detect Supabase entries via isOverride flag.
+        const videoStartOffset = prog.isOverride ? 0 : prog.startTime || 0;
+        targetSeek = videoStartOffset + Math.floor(offset);
 
         console.log(
-          `[TLL] playProgram idx=${idx} title="${prog.title}" startTime=${prog.startTime} offset=${Math.floor(offset)} → seekTo=${targetSeek}`,
+          `[TLL] playProgram idx=${idx} title="${prog.title}" isOverride=${prog.isOverride} videoStartOffset=${videoStartOffset} offset=${Math.floor(offset)}s → seekTo=${targetSeek}s`,
         );
 
         // Update title strip
